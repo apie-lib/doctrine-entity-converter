@@ -1,0 +1,41 @@
+<?php
+namespace Test\RenderOnly;
+
+use Apie\Core\Dto\DtoInterface;
+use Apie\DoctrineEntityConverter\Embeddables\MixedType;
+use Apie\DoctrineEntityConverter\Utils\Utils;
+use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
+use Doctrine\ORM\Mapping as ORM;
+
+class UserWithAddress implements DtoInterface
+{
+    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
+    public MixedType $id;
+
+    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
+    public MixedType $password;
+
+    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
+    public MixedType $address;
+
+    private function __construct()
+    {
+    }
+
+    public static function createFrom(OriginalDomainObject $input): self
+    {
+        $instance = new self();
+
+        $instance->id = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id')));
+        $instance->password = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'password')));
+        $instance->address = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address')));
+        return $instance;
+    }
+
+    public function inject(OriginalDomainObject $instance, \ReflectionProperty $property): void
+    {
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $this->id->toDomainObject());
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $this->address->toDomainObject());
+    }
+}
