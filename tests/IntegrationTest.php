@@ -111,10 +111,14 @@ class IntegrationTest extends TestCase
             },
             function (UserWithAutoincrementKey $domainObject) {
                 $this->assertNotNull($domainObject->getId()->toNative(), 'Object id is updated after inject()');
+                $this->assertEquals('Street', $domainObject->getAddress()->getStreet()->toNative());
+                $this->assertEquals('42-A', $domainObject->getAddress()->getStreetNumber()->toNative());
+                $this->assertEquals('1234 AA', $domainObject->getAddress()->getZipcode()->toNative());
+                $this->assertEquals('Amsterdam', $domainObject->getAddress()->getCity()->toNative());
             }
         ];
-        /*yield 'Entity with predefined uuid' => [
+        yield 'Entity with predefined uuid' => [
             new UserWithAddress($address),
-        ];*/
+        ];
     }
 }

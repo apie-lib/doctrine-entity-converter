@@ -10,9 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class UserWithAddress implements DtoInterface
 {
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
+    #[ORM\Column(type: 'string', length: 36)]
     #[ORM\Id]
-    public MixedType $id;
+    public string $id;
 
     #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
     public MixedType $password;
@@ -28,7 +28,9 @@ class UserWithAddress implements DtoInterface
     {
         $instance = new self();
 
-        $instance->id = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id')));
+        $tmp = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $tmp = $tmp ? $tmp->toNative(): null;
+        $instance->id = $tmp === null ? null : \Apie\Core\ValueObjects\Utils::toString($tmp);
         $instance->password = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'password')));
         $instance->address = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address')));
         return $instance;
@@ -36,7 +38,7 @@ class UserWithAddress implements DtoInterface
 
     public function inject(OriginalDomainObject $instance): void
     {
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $this->id->toDomainObject());
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($this->id));
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $this->address->toDomainObject());
     }
