@@ -7,9 +7,11 @@ use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 class UserWithAddress implements DtoInterface
 {
     #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
+    #[ORM\Id]
     public MixedType $id;
 
     #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
@@ -32,7 +34,7 @@ class UserWithAddress implements DtoInterface
         return $instance;
     }
 
-    public function inject(OriginalDomainObject $instance, \ReflectionProperty $property): void
+    public function inject(OriginalDomainObject $instance): void
     {
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $this->id->toDomainObject());
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());

@@ -12,7 +12,7 @@ class GeneratedCodeTest extends TestCase
     {
         $testItem = new GeneratedCode('Generated\Example', 'Example', EmptyDto::class);
         $fixture = __DIR__ . '/../../fixtures/Example.phpinc';
-         file_put_contents($fixture, $testItem->toCode());
+        file_put_contents($fixture, $testItem->toCode());
         $this->assertEquals(file_get_contents($fixture), $testItem->toCode());
 
         $testItem->addInjectCode('$instance->test = "example";');
@@ -23,7 +23,7 @@ class GeneratedCodeTest extends TestCase
             ->addAttribute(Column::class, ['name' => 'Example']);
 
         $fixture = __DIR__ . '/../../fixtures/Example2.phpinc';
-         file_put_contents($fixture, $testItem->toCode());
+        file_put_contents($fixture, $testItem->toCode());
         $this->assertEquals(file_get_contents($fixture), $testItem->toCode());
     }
 }

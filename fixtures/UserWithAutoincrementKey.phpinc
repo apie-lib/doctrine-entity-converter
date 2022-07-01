@@ -7,6 +7,7 @@ use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 class UserWithAutoincrementKey implements DtoInterface
 {
     #[ORM\Column(type: 'integer', nullable: true)]
@@ -28,17 +29,17 @@ class UserWithAutoincrementKey implements DtoInterface
     {
         $instance = new self();
 
-        $tmp = Utils::getValue($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $tmp = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $tmp = $tmp ? $tmp->toNative(): null;
         $instance->id = $tmp === null ? null : \Apie\Core\ValueObjects\Utils::toInt($tmp);
         $instance->password = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'password')));
         $instance->address = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address')));
         return $instance;
     }
 
-    public function inject(OriginalDomainObject $instance, \ReflectionProperty $property): void
+    public function inject(OriginalDomainObject $instance): void
     {
-        $property->setAccessible(true);
-        $property->setValue($instance, $this->id);
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), \Apie\Fixtures\Identifiers\UserAutoincrementIdentifier::fromNative($this->id));
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $this->address->toDomainObject());
     }

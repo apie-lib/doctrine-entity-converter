@@ -6,6 +6,7 @@ use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Dto\EmptyDto as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 class Example implements DtoInterface
 {
     private function __construct()
@@ -18,7 +19,7 @@ class Example implements DtoInterface
         return $instance;
     }
 
-    public function inject(OriginalDomainObject $instance, \ReflectionProperty $property): void
+    public function inject(OriginalDomainObject $instance): void
     {
     }
 }

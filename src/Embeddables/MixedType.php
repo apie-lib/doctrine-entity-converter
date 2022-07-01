@@ -3,17 +3,18 @@ namespace Apie\DoctrineEntityConverter\Embeddables;
 
 use Apie\DoctrineEntityConverter\Exceptions\ContentsCouldNotBeDeserialized;
 use Doctrine\ORM\Mapping\Column;
-use ReflectionProperty;
+use Doctrine\ORM\Mapping\Embeddable;
 
 /**
  * Maps any type to a doctrine column. To allow any type, we basically store
  */
+#[Embeddable]
 class MixedType
 {
-    #[Column(['type' => 'text'])]
+    #[Column(type: 'text')]
     private ?string $serializedString = null;
 
-    #[Column(['type' => 'string'])]
+    #[Column(type: 'string')]
     private ?string $originalClass = null;
 
     private function __construct()

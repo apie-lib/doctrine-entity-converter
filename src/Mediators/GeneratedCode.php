@@ -3,12 +3,12 @@ namespace Apie\DoctrineEntityConverter\Mediators;
 
 use Apie\Core\Dto\DtoInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
+use Doctrine\ORM\Mapping\Entity;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\Property;
 use Nette\PhpGenerator\PsrPrinter;
-use ReflectionProperty;
 
 class GeneratedCode
 {
@@ -30,6 +30,7 @@ class GeneratedCode
 
         $this->classType = $this->namespace->addClass($className);
         $this->classType->addImplement(DtoInterface::class);
+        $this->classType->addAttribute(Entity::class);
         $this->classType->addMethod('__construct')->setPrivate(true);
 
         $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic(true);
@@ -40,7 +41,6 @@ class GeneratedCode
         $this->inject = $this->classType->addMethod('inject')->setPublic(true);
         $this->inject->setReturnType('void');
         $this->inject->addParameter('instance')->setType($originalClassName);
-        $this->inject->addParameter('property')->setType(ReflectionProperty::class);
     }
 
     public function addUse(string $typehint)

@@ -27,9 +27,11 @@
     "nikic/php-parser": "^4.14"
   },
   "require-dev": {
+    "apie/composite-value-objects": "self.version",
     "apie/fixtures": "self.version",
     "phpunit/phpunit": "^9.5",
-    "phpspec/prophecy-phpunit": "^2.0"
+    "phpspec/prophecy-phpunit": "^2.0",
+    "symfony/cache": "^6.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

@@ -1,11 +1,14 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
+use Apie\Core\Identifiers\IdentifierInterface;
 use Apie\DoctrineEntityConverter\Embeddables\MixedType;
 use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Doctrine\ORM\Mapping\Embedded;
+use Doctrine\ORM\Mapping\Id;
 use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionProperty;
 
 class MixedPropertyGenerator implements PropertyGeneratorInterface
@@ -22,8 +25,16 @@ class MixedPropertyGenerator implements PropertyGeneratorInterface
         $code->addCreateFromCode($fromCode);
         $inject = $this->generateInject($class, $property);
         $code->addInjectCode($inject);
-        $code->addProperty(MixedType::class, $property->name)
-            ->addAttribute(Embedded::class, ['class' => MixedType::class]);
+        $prop = $code->addProperty(MixedType::class, $property->name);
+        $prop->addAttribute(Embedded::class, ['class' => MixedType::class]);
+        $type = $property->getType();
+        if (!$type->isBuiltin() && $type instanceof ReflectionNamedType) {
+            $typeName = $type->getName();
+            $typeReflClass = new ReflectionClass($typeName);
+            if ($typeReflClass->implementsInterface(IdentifierInterface::class) && $typeName::getReferenceFor()->name === $class->name) {
+                $prop->addAttribute(Id::class);
+            }
+        }
     }
 
     protected function generateFromCode(ReflectionClass $class, ReflectionProperty $property): string
@@ -39,7 +50,7 @@ class MixedPropertyGenerator implements PropertyGeneratorInterface
             var_export($property->name, true)
         );
     }
-    public function generateInject(ReflectionClass $class, ReflectionProperty $property): string
+    protected function generateInject(ReflectionClass $class, ReflectionProperty $property): string
     {
         $declaringClass = 'OriginalDomainObject';
         if ($property->getDeclaringClass()->name !== $class->name) {

@@ -4,7 +4,6 @@ namespace Apie\Tests\DoctrineEntityConverter\Embeddables;
 use Apie\DoctrineEntityConverter\Embeddables\MixedType;
 use Apie\Fixtures\ValueObjects\CompositeValueObjectExample;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 
 class MixedTypeTest extends TestCase
 {
