@@ -1,15 +1,12 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
-use Apie\Core\Identifiers\IdentifierInterface;
 use Apie\DoctrineEntityConverter\Embeddables\MixedType;
 use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Doctrine\ORM\Mapping\Embedded;
-use Doctrine\ORM\Mapping\Id;
 use ReflectionClass;
-use ReflectionNamedType;
 use ReflectionProperty;
 
 class MixedPropertyGenerator implements PropertyGeneratorInterface

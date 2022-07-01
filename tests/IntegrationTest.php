@@ -3,6 +3,7 @@ namespace Apie\Tests\DoctrineEntityConverter;
 
 use Apie\CommonValueObjects\Texts\DatabaseText;
 use Apie\Core\Entities\EntityInterface;
+use Apie\DoctrineEntityConverter\Exceptions\ContentsCouldNotBeDeserialized;
 use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey;
 use Apie\Fixtures\ValueObjects\AddressWithZipcodeCheck;
@@ -66,23 +67,16 @@ class IntegrationTest extends TestCase
         if (!@mkdir($tempFolder)) {
             $this->markTestSkipped('Can not create temp folder ' . $tempFolder);
         }
-        $reflClass = new ReflectionClass($domainObject);
-        $namespace = 'Generated\Example' . uniqid();
-        $entityBuilder = $this->givenAEntityBuilder($namespace);
-        try {
-            $generatedFilePath = $tempFolder . DIRECTORY_SEPARATOR . $reflClass->getShortName() . '.php';
-            $generatedEntityClassName = $namespace . '\\' . $reflClass->getShortName();
-            file_put_contents(
-                $generatedFilePath,
-                $entityBuilder->createCodeFor($reflClass)
-            );
 
-            $this->assertFalse(class_exists($generatedEntityClassName));
-            require_once($generatedFilePath);
-            $this->assertTrue(class_exists($generatedEntityClassName), 'requiring the generated file created the class');
-            
-            $entityManager = $this->createEntityManager($tempFolder);
-            $this->runMigrations($entityManager);
+        try {
+            $reflClass = new ReflectionClass($domainObject);
+            $namespace = 'Generated\Example' . uniqid();
+            $generatedEntityClassName = $namespace . '\\' . $reflClass->getShortName();
+            $entityManager = $this->givenAnEntityManagerFromGeneratedClass(
+                $namespace,
+                $tempFolder,
+                $reflClass
+            );
 
             $entity = $generatedEntityClassName::createFrom($domainObject);
             $entityManager->persist($entity);
@@ -90,10 +84,54 @@ class IntegrationTest extends TestCase
             $testBefore($domainObject);
             $entity->inject($domainObject);
             $testAfter($domainObject);
-            $this->assertNotNull($domainObject->getId()->toNative());
         } finally {
             system('rm -rf ' . escapeshellarg($tempFolder));
         }
+    }
+
+    public function testSerializationError()
+    {
+        $tempFolder = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('doctrine-');
+        if (!@mkdir($tempFolder)) {
+            $this->markTestSkipped('Can not create temp folder ' . $tempFolder);
+        }
+
+        try {
+            $reflClass = new ReflectionClass(UserWithAutoincrementKey::class);
+            $namespace = 'Generated\Example' . uniqid();
+            $generatedEntityClassName = $namespace . '\\' . $reflClass->getShortName();
+            $entityManager = $this->givenAnEntityManagerFromGeneratedClass(
+                $namespace,
+                $tempFolder,
+                $reflClass
+            );
+            $entityManager->getConnection()->exec(file_get_contents(__DIR__ . '/../fixtures/address.sql'));
+            $entity = $entityManager->find($generatedEntityClassName, 42);
+            $this->expectException(ContentsCouldNotBeDeserialized::class);
+            $entity->inject($reflClass->newInstanceWithoutConstructor());
+        } finally {
+            system('rm -rf ' . escapeshellarg($tempFolder));
+        }
+    }
+
+    private function givenAnEntityManagerFromGeneratedClass(string $namespace, string $tempFolder, ReflectionClass $reflClass): EntityManagerInterface
+    {
+        $entityBuilder = $this->givenAEntityBuilder($namespace);
+
+        $generatedFilePath = $tempFolder . DIRECTORY_SEPARATOR . $reflClass->getShortName() . '.php';
+        $generatedEntityClassName = $namespace . '\\' . $reflClass->getShortName();
+        file_put_contents(
+            $generatedFilePath,
+            $entityBuilder->createCodeFor($reflClass)
+        );
+
+        $this->assertFalse(class_exists($generatedEntityClassName));
+        require_once($generatedFilePath);
+        $this->assertTrue(class_exists($generatedEntityClassName), 'requiring the generated file created the class');
+        
+        $entityManager = $this->createEntityManager($tempFolder);
+        $this->runMigrations($entityManager);
+        return $entityManager;
     }
 
     public function entityProvider()
@@ -111,6 +149,7 @@ class IntegrationTest extends TestCase
             },
             function (UserWithAutoincrementKey $domainObject) {
                 $this->assertNotNull($domainObject->getId()->toNative(), 'Object id is updated after inject()');
+                $this->assertNull($domainObject->getPassword());
                 $this->assertEquals('Street', $domainObject->getAddress()->getStreet()->toNative());
                 $this->assertEquals('42-A', $domainObject->getAddress()->getStreetNumber()->toNative());
                 $this->assertEquals('1234 AA', $domainObject->getAddress()->getZipcode()->toNative());

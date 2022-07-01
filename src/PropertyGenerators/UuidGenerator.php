@@ -2,14 +2,11 @@
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
 use Apie\CommonValueObjects\Identifiers\Uuid;
-use Apie\Core\Identifiers\AutoIncrementInteger;
 use Apie\Core\ValueObjects\Utils;
 use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Apie\DoctrineEntityConverter\Utils\Utils as UtilsUtils;
 use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
