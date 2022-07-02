@@ -27,6 +27,7 @@
     "nikic/php-parser": "^4.14"
   },
   "require-dev": {
+    "apie/common-value-objects": "self.version",
     "apie/composite-value-objects": "self.version",
     "apie/fixtures": "self.version",
     "phpunit/phpunit": "^9.5",
