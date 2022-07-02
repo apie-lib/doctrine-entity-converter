@@ -156,8 +156,14 @@ class IntegrationTest extends TestCase
                 $this->assertEquals('Amsterdam', $domainObject->getAddress()->getCity()->toNative());
             }
         ];
+        $domainObject = new UserWithAddress($address);
+        $id = $domainObject->getId()->toNative();
         yield 'Entity with predefined uuid' => [
-            new UserWithAddress($address),
+            $domainObject,
+            null,
+            function (UserWithAddress $persistedObject) use ($id) {
+                $this->assertEquals($id, $persistedObject->getId()->toNative());
+            }
         ];
     }
 }
