@@ -1,4 +1,4 @@
-<img src="/docs/apie-logo.svg" width="100px" align="left" />
+<img src="https://raw.githubusercontent.com/apie-lib/apie-lib-monorepo/main/docs/apie-logo.svg" width="100px" align="left" />
 <h1>doctrine-entity-converter</h1>
 
 
