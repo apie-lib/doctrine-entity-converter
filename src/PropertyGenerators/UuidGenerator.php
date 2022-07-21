@@ -1,7 +1,7 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
-use Apie\CommonValueObjects\Identifiers\Uuid;
+use Apie\Core\Identifiers\Uuid;
 use Apie\Core\ValueObjects\Utils;
 use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
