@@ -14,7 +14,7 @@ final class Utils
     {
     }
 
-    public static function setProperty(mixed $instance, ReflectionProperty $property, mixed $value)
+    public static function setProperty(mixed $instance, ReflectionProperty $property, mixed $value): void
     {
         $property->setAccessible(true);
         $property->setValue($instance, $value);
@@ -26,9 +26,9 @@ final class Utils
         return $property->getValue($instance);
     }
 
-    public static function addIdAttributeIfApplicable(string $className, ReflectionType $type, Property $prop)
+    public static function addIdAttributeIfApplicable(string $className, ReflectionType $type, Property $prop): void
     {
-        if (!$type->isBuiltin() && $type instanceof ReflectionNamedType) {
+        if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
             $typeName = $type->getName();
             if (is_a($typeName, IdentifierInterface::class, true) && $typeName::getReferenceFor()->name === $className) {
                 $prop->addAttribute(Id::class);

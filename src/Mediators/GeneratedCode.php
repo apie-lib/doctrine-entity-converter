@@ -31,21 +31,23 @@ class GeneratedCode
         $this->classType = $this->namespace->addClass($className);
         $this->classType->addImplement(DtoInterface::class);
         $this->classType->addAttribute(Entity::class);
-        $this->classType->addMethod('__construct')->setPrivate(true);
+        $this->classType->addMethod('__construct')->setPrivate();
 
-        $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic(true);
+        $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic();
         $this->createFrom->addParameter('input')->setType($originalClassName);
         $this->createFrom->setReturnType('self');
         $this->createFrom->setBody('$instance = new self();' . PHP_EOL . 'return $instance;');
 
-        $this->inject = $this->classType->addMethod('inject')->setPublic(true);
+        $this->inject = $this->classType->addMethod('inject')->setPublic();
         $this->inject->setReturnType('void');
         $this->inject->addParameter('instance')->setType($originalClassName);
     }
 
-    public function addUse(string $typehint)
+    public function addUse(string $typehint): self
     {
-        return $this->namespace->addUse($typehint);
+        $this->namespace->addUse($typehint);
+
+        return $this;
     }
 
     public function addProperty(string $typehint, string $propertyName): Property
@@ -55,13 +57,13 @@ class GeneratedCode
         return $property;
     }
 
-    public function addCreateFromCode(string $code)
+    public function addCreateFromCode(string $code): void
     {
         $this->createFromCode .= PHP_EOL . $code;
         $this->createFrom->setBody('$instance = new self();' . $this->createFromCode . PHP_EOL . 'return $instance;');
     }
 
-    public function addInjectCode(string $code)
+    public function addInjectCode(string $code): void
     {
         $this->injectCode .= PHP_EOL . $code;
         $this->inject->setBody($this->injectCode);

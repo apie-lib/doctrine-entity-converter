@@ -9,6 +9,10 @@ use Doctrine\ORM\Mapping\Embedded;
 use ReflectionClass;
 use ReflectionProperty;
 
+/**
+ * @template T of object
+ * @implements PropertyGeneratorInterface<T>
+ */
 class MixedPropertyGenerator implements PropertyGeneratorInterface
 {
     public function isSupported(ReflectionClass $class, ReflectionProperty $property): bool
@@ -30,6 +34,9 @@ class MixedPropertyGenerator implements PropertyGeneratorInterface
         Utils::addIdAttributeIfApplicable($class->name, $type, $prop);
     }
 
+    /**
+     * @param ReflectionClass<T> $class
+     */
     protected function generateFromCode(ReflectionClass $class, ReflectionProperty $property): string
     {
         $declaringClass = 'OriginalDomainObject';
@@ -43,6 +50,10 @@ class MixedPropertyGenerator implements PropertyGeneratorInterface
             var_export($property->name, true)
         );
     }
+
+    /**
+     * @param ReflectionClass<T> $class
+     */
     protected function generateInject(ReflectionClass $class, ReflectionProperty $property): string
     {
         $declaringClass = 'OriginalDomainObject';

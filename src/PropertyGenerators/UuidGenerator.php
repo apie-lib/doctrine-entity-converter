@@ -11,6 +11,10 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 
+/**
+ * @template T of object
+ * @implements PropertyGeneratorInterface<T>
+ */
 class UuidGenerator implements PropertyGeneratorInterface
 {
     public function isSupported(ReflectionClass $class, ReflectionProperty $property): bool
@@ -37,6 +41,9 @@ class UuidGenerator implements PropertyGeneratorInterface
         UtilsUtils::addIdAttributeIfApplicable($class->name, $property->getType(), $prop);
     }
 
+    /**
+     * @param ReflectionClass<T> $class
+     */
     protected function generateFromCode(ReflectionClass $class, ReflectionProperty $property): string
     {
         $declaringClass = 'OriginalDomainObject';
@@ -53,6 +60,10 @@ $instance->%s = $tmp === null ? null : \%s::toString($tmp);',
             Utils::class
         );
     }
+
+    /**
+     * @param ReflectionClass<T> $class
+     */
     protected function generateInject(ReflectionClass $class, ReflectionProperty $property): string
     {
         $declaringClass = 'OriginalDomainObject';
