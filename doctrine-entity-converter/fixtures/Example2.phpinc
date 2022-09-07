@@ -1,0 +1,30 @@
+<?php
+namespace Generated\Example;
+
+use Apie\Core\Dto\DtoInterface;
+use Apie\DoctrineEntityConverter\Utils\Utils;
+use Apie\Fixtures\Dto\EmptyDto as OriginalDomainObject;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class Example implements DtoInterface
+{
+    #[ORM\Column(name: 'Example')]
+    public string $example;
+
+    private function __construct()
+    {
+    }
+
+    public static function createFrom(OriginalDomainObject $input): self
+    {
+        $instance = new self();
+        return $instance;
+    }
+
+    public function inject(OriginalDomainObject $instance): void
+    {
+        $instance->test = "example";
+        $this->addCreateFromCode = "example";
+    }
+}
