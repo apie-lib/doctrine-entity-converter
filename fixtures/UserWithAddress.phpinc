@@ -8,38 +8,39 @@ use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-class UserWithAddress implements DtoInterface
+class apie_entity_example_user_with_address implements DtoInterface
 {
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: 'text', nullable: false)]
     #[ORM\Id]
     public string $id;
 
     #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $password;
+    public MixedType $apie_address;
 
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $address;
-
-    private function __construct()
-    {
-    }
+    #[ORM\Column(type: 'text', nullable: false)]
+    public string $apie_id;
 
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();
 
-        $tmp = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
-        $tmp = $tmp ? $tmp->toNative(): null;
-        $instance->id = $tmp === null ? null : \Apie\Core\ValueObjects\Utils::toString($tmp);
-        $instance->password = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'password')));
-        $instance->address = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address')));
+        $instance->id = $input->getId()->toNative();
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address'));
+        $converted = MixedType::createFrom($raw);
+        $instance->apie_address = $converted;
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $converted = $raw->toNative();
+        $instance->apie_id = $converted;
         return $instance;
     }
 
     public function inject(OriginalDomainObject $instance): void
     {
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($this->id));
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $this->address->toDomainObject());
+        $tmp = $this->apie_address;
+        $converted = $this->apie_address->toDomainObject();
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $converted);
+        $tmp = $this->apie_id;
+        $converted = \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($tmp);
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $converted);
     }
 }

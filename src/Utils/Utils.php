@@ -2,6 +2,7 @@
 namespace Apie\DoctrineEntityConverter\Utils;
 
 use Apie\Core\Identifiers\IdentifierInterface;
+use Apie\Core\Utils\ConverterUtils;
 use Doctrine\ORM\Mapping\Id;
 use Nette\PhpGenerator\Property;
 use ReflectionNamedType;
@@ -14,9 +15,13 @@ final class Utils
     {
     }
 
-    public static function setProperty(mixed $instance, ReflectionProperty $property, mixed $value): void
+    public static function setProperty(mixed $instance, ReflectionProperty $property, mixed $value, bool $castType = true): void
     {
         $property->setAccessible(true);
+        $type = $property->getType();
+        if ($castType && $type) {
+            $value = ConverterUtils::dynamicCast($value, $type);
+        }
         $property->setValue($instance, $value);
     }
 

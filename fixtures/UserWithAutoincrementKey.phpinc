@@ -4,43 +4,36 @@ namespace Test\RenderOnly;
 use Apie\Core\Dto\DtoInterface;
 use Apie\DoctrineEntityConverter\Embeddables\MixedType;
 use Apie\DoctrineEntityConverter\Utils\Utils;
-use Apie\Fixtures\Entities\UserWithAutoincrementKey as OriginalDomainObject;
+use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-class UserWithAutoincrementKey implements DtoInterface
+class apie_entity_example_user_with_address implements DtoInterface
 {
     #[ORM\Column(type: 'integer', nullable: true)]
-    #[ORM\GeneratedValue]
     #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     public ?int $id;
 
     #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $password;
-
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $address;
-
-    private function __construct()
-    {
-    }
+    public MixedType $apie_address;
 
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();
 
-        $tmp = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
-        $tmp = $tmp ? $tmp->toNative(): null;
-        $instance->id = $tmp === null ? null : \Apie\Core\ValueObjects\Utils::toInt($tmp);
-        $instance->password = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'password')));
-        $instance->address = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address')));
+        $tmp = $input->getId();
+        $instance->id = $tmp ? $tmp->toNative() : null;
+        $raw = Utils::getProperty($input, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address'));
+        $converted = MixedType::createFrom($raw);
+        $instance->apie_address = $converted;
         return $instance;
     }
 
     public function inject(OriginalDomainObject $instance): void
     {
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), \Apie\Fixtures\Identifiers\UserAutoincrementIdentifier::fromNative($this->id));
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $this->address->toDomainObject());
+        $tmp = $this->apie_address;
+        $converted = $this->apie_address->toDomainObject();
+        Utils::setProperty($instance, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address'), $converted);
     }
 }

@@ -12,10 +12,6 @@ class Example implements DtoInterface
     #[ORM\Column(name: 'Example')]
     public string $example;
 
-    private function __construct()
-    {
-    }
-
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();

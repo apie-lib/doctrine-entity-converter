@@ -9,10 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Example implements DtoInterface
 {
-    private function __construct()
-    {
-    }
-
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();

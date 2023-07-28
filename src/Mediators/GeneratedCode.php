@@ -31,7 +31,6 @@ class GeneratedCode
         $this->classType = $this->namespace->addClass($className);
         $this->classType->addImplement(DtoInterface::class);
         $this->classType->addAttribute(Entity::class);
-        $this->classType->addMethod('__construct')->setPrivate();
 
         $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic();
         $this->createFrom->addParameter('input')->setType($originalClassName);
@@ -41,6 +40,11 @@ class GeneratedCode
         $this->inject = $this->classType->addMethod('inject')->setPublic();
         $this->inject->setReturnType('void');
         $this->inject->addParameter('instance')->setType($originalClassName);
+    }
+
+    public function getNamespace(): string
+    {
+        return $this->namespace->getName();
     }
 
     public function addUse(string $typehint): self
