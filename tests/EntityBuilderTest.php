@@ -7,12 +7,10 @@ use Apie\Core\Persistence\Fields\FieldReference;
 use Apie\Core\Persistence\Fields\PropertySimpleValueObject;
 use Apie\Core\Persistence\Lists\PersistenceFieldList;
 use Apie\Core\Persistence\Metadata\EntityMetadata;
-use Apie\Core\Persistence\PersistenceMetadataFactory;
 use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey;
 use Apie\Tests\DoctrineEntityConverter\Concerns\HasEntityBuilder;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 
 class EntityBuilderTest extends TestCase
 {

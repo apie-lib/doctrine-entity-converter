@@ -1,21 +1,13 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
-use Apie\Core\Persistence\Enums\PersistenceColumn;
 use Apie\Core\Persistence\PersistenceFieldInterface;
 use Apie\Core\Persistence\PersistenceTableInterface;
 use Apie\DoctrineEntityConverter\Embeddables\MixedType;
-use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
-use Apie\DoctrineEntityConverter\Utils\Utils;
 use Doctrine\ORM\Mapping\Embedded;
-use ReflectionClass;
 use ReflectionProperty;
 
-/**
- * @template T of object
- * @implements PropertyGeneratorInterface<T>
- */
 class MixedPropertyGenerator extends AbstractPropertyGenerator
 {
 
@@ -56,16 +48,14 @@ class MixedPropertyGenerator extends AbstractPropertyGenerator
     protected function getDoctrineAttribute(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
-    ): string
-    {
+    ): string {
         return Embedded::class;
     }
 
     protected function getDoctrineAttributeValue(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
-    ): array
-    {
+    ): array {
         return ['class' => MixedType::class];
     }
 

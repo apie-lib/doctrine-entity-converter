@@ -9,7 +9,6 @@ use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
-use ReflectionProperty;
 
 final class IdPropertyGenerator implements PropertyGeneratorInterface
 {
@@ -24,7 +23,7 @@ final class IdPropertyGenerator implements PropertyGeneratorInterface
         $code->addCreateFromCode($fromCode);
         $prop = $code->addProperty(($field->isAllowsNull() ? '?' : '') . $field->getPersistenceType()->toType(), $field->getName());
         $prop->addAttribute(
-            Column::class, 
+            Column::class,
             [
                 'type' => $field->getPersistenceType()->toDoctrineType(),
                 'nullable' => $field->isAllowsNull(),

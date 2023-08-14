@@ -2,6 +2,7 @@
 namespace Apie\DoctrineEntityConverter\Mediators;
 
 use Apie\Core\Dto\DtoInterface;
+use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Doctrine\ORM\Mapping\Entity;
 use Nette\PhpGenerator\ClassType;
@@ -25,11 +26,13 @@ class GeneratedCode
         $this->namespace = new PhpNamespace($namespace);
         $this->namespace->addUse(DtoInterface::class);
         $this->namespace->addUse('Doctrine\ORM\Mapping', 'ORM');
+        $this->namespace->addUse(GeneratedDoctrineEntityInterface::class);
         $this->namespace->addUse(Utils::class);
         $this->namespace->addUse($originalClassName, 'OriginalDomainObject');
 
         $this->classType = $this->namespace->addClass($className);
         $this->classType->addImplement(DtoInterface::class);
+        $this->classType->addImplement(GeneratedDoctrineEntityInterface::class);
         $this->classType->addAttribute(Entity::class);
 
         $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic();

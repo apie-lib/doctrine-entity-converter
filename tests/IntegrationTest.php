@@ -1,8 +1,6 @@
 <?php
 namespace Apie\Tests\DoctrineEntityConverter;
 
-use Apie\Common\Wrappers\BoundedContextHashmapFactory;
-use Apie\Core\BoundedContext\BoundedContextHashmap;
 use Apie\Core\Entities\EntityInterface;
 use Apie\Core\IdentifierUtils;
 use Apie\Core\Persistence\PersistenceLayerFactory;

@@ -2,20 +2,20 @@
 namespace Test\RenderOnly;
 
 use Apie\Core\Dto\DtoInterface;
-use Apie\DoctrineEntityConverter\Embeddables\MixedType;
+use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-class apie_entity_example_user_with_address implements DtoInterface
+class apie_entity_example_user_with_address implements DtoInterface, GeneratedDoctrineEntityInterface
 {
     #[ORM\Column(type: 'text', nullable: false)]
     #[ORM\Id]
     public string $id;
 
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $apie_address;
+    #[ORM\OneToOne(targetEntity: 'apie_other_table', cascade: ['all'])]
+    public apie_other_table $apie_address;
 
     #[ORM\Column(type: 'text', nullable: false)]
     public string $apie_id;
@@ -24,10 +24,19 @@ class apie_entity_example_user_with_address implements DtoInterface
     {
         $instance = new self();
 
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
         $instance->id = $input->getId()->toNative();
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
         $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address'));
-        $converted = MixedType::createFrom($raw);
+        $converted = apie_other_table::createFrom($raw);
         $instance->apie_address = $converted;
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\PropertySimpleValueObject
         $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
         $converted = $raw->toNative();
         $instance->apie_id = $converted;
@@ -36,9 +45,17 @@ class apie_entity_example_user_with_address implements DtoInterface
 
     public function inject(OriginalDomainObject $instance): void
     {
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
         $tmp = $this->apie_address;
-        $converted = $this->apie_address->toDomainObject();
+        $converted = $tmp; $tmp->inject(Utils::getProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'))); $converted = $tmp;
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $converted);
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\PropertySimpleValueObject
         $tmp = $this->apie_id;
         $converted = \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($tmp);
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $converted);

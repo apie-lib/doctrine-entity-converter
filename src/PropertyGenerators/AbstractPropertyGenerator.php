@@ -80,6 +80,7 @@ abstract class AbstractPropertyGenerator implements PropertyGeneratorInterface
 
     protected function generateFromCode(PersistenceTableInterface $table, PersistenceFieldInterface $field): string
     {
+        assert(is_callable([$field, 'getProperty']));
         $property = $field->getProperty();
         assert($property instanceof ReflectionProperty);
         $declaredClass = $property->getDeclaringClass()->name;
@@ -97,12 +98,12 @@ $instance->%s = $converted;',
             var_export($property->name, true),
             $this->generateFromCodeConversion($table, $field, $property),
             $field->getName(),
-            
         );
     }
 
     protected function generateInject(PersistenceTableInterface $table, PersistenceFieldInterface $field): string
     {
+        assert(is_callable([$field, 'getProperty']));
         $property = $field->getProperty();
         assert($property instanceof ReflectionProperty);
         $declaredClass = $property->getDeclaringClass()->name;

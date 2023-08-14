@@ -11,10 +11,10 @@ use Doctrine\ORM\Mapping\Embeddable;
 #[Embeddable]
 class MixedType
 {
-    #[Column(type: 'text')]
+    #[Column(type: 'text', nullable: true)]
     private ?string $serializedString = null;
 
-    #[Column(type: 'string')]
+    #[Column(type: 'string', nullable: true)]
     private ?string $originalClass = null;
 
     private function __construct()

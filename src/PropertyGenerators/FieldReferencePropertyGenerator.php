@@ -1,20 +1,20 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
-use Apie\Core\Persistence\Fields\AutoincrementIntegerReference;
+use Apie\Core\Persistence\Fields\FieldReference;
 use Apie\Core\Persistence\PersistenceFieldInterface;
 use Apie\Core\Persistence\PersistenceTableInterface;
-use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
 use ReflectionProperty;
 
-class AutoincrementIntegerReferenceGenerator extends AbstractPropertyGenerator
+class FieldReferencePropertyGenerator extends AbstractPropertyGenerator
 {
     protected function supportsProperty(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field,
         ReflectionProperty $property
     ): bool {
-        return $field instanceof AutoincrementIntegerReference;
+        return $field instanceof FieldReference;
     }
 
     protected function generateFromCodeConversion(
@@ -22,15 +22,18 @@ class AutoincrementIntegerReferenceGenerator extends AbstractPropertyGenerator
         PersistenceFieldInterface $field,
         ReflectionProperty $property
     ): string {
-        assert($field instanceof AutoincrementIntegerReference);
-        return 'new ' . $field->getTableReference() . '();$converted->id = $raw->toNative()';
+        assert($field instanceof FieldReference);
+        return sprintf(
+            '%s::createFrom($raw)',
+            $field->getTableReference()
+        );
     }
 
     protected function getTypeForProperty(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
     ): string {
-        assert($field instanceof AutoincrementIntegerReference);
+        assert($field instanceof FieldReference);
         return $field->getTableReference();
     }
 
@@ -39,17 +42,16 @@ class AutoincrementIntegerReferenceGenerator extends AbstractPropertyGenerator
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
     ): string {
-        return ManyToOne::class;
+        return OneToOne::class;
     }
 
     protected function getDoctrineAttributeValue(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
     ): array {
-        assert($field instanceof AutoincrementIntegerReference);
+        assert($field instanceof FieldReference);
         return [
             'targetEntity' => $field->getTableReference(),
-            'fetch' => 'EAGER',
             'cascade' => ['all'],
         ];
     }
@@ -59,11 +61,20 @@ class AutoincrementIntegerReferenceGenerator extends AbstractPropertyGenerator
         PersistenceFieldInterface $field,
         ReflectionProperty $property
     ): string {
-        assert($field instanceof AutoincrementIntegerReference);
-        if ($field->isAllowsNull()) {
-            return '$tmp === null ? null : $tmp->id';
+        assert($field instanceof FieldReference);
+        $property = $field->getProperty();
+        assert($property instanceof ReflectionProperty);
+        $declaredClass = $property->getDeclaringClass()->name;
+        assert(null !== $declaredClass);
+        $declaringClass = 'OriginalDomainObject';
+        if ($table->getOriginalClass() !== $declaredClass) {
+            $declaringClass = '\\' . $declaredClass;
         }
-        return '$tmp->id';
-    }
 
+        return sprintf(
+            '$tmp; $tmp->inject(Utils::getProperty($instance, new \ReflectionProperty(%s::class, %s))); $converted = $tmp',
+            $declaringClass,
+            var_export($property->name, true)
+        );
+    }
 }

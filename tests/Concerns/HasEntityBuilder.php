@@ -2,10 +2,6 @@
 namespace Apie\Tests\DoctrineEntityConverter\Concerns;
 
 use Apie\DoctrineEntityConverter\EntityBuilder;
-use Apie\DoctrineEntityConverter\PropertyGenerators\AutoincrementIntegerGenerator;
-use Apie\DoctrineEntityConverter\PropertyGenerators\MixedPropertyGenerator;
-use Apie\DoctrineEntityConverter\PropertyGenerators\UuidGenerator;
-use Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator;
 
 trait HasEntityBuilder
 {

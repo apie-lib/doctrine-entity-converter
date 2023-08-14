@@ -7,7 +7,6 @@ use Apie\Core\Persistence\PersistenceTableInterface;
 use PhpParser\Error;
 use PhpParser\ParserFactory;
 use RuntimeException;
-use Throwable;
 
 final class OrmBuilder
 {
@@ -38,7 +37,7 @@ final class OrmBuilder
         }
     }
 
-    public function createOrm(string $path)
+    public function createOrm(string $path): void
     {
         $tableList = $this->persistenceLayerFactory->create($this->boundedContextHashmap);
         foreach ($tableList as $table) {

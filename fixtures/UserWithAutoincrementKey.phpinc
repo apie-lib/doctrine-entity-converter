@@ -2,38 +2,49 @@
 namespace Test\RenderOnly;
 
 use Apie\Core\Dto\DtoInterface;
-use Apie\DoctrineEntityConverter\Embeddables\MixedType;
+use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-class apie_entity_example_user_with_address implements DtoInterface
+class apie_entity_example_user_with_address implements DtoInterface, GeneratedDoctrineEntityInterface
 {
     #[ORM\Column(type: 'integer', nullable: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     public ?int $id;
 
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $apie_address;
+    #[ORM\OneToOne(targetEntity: 'apie_other_table', cascade: ['all'])]
+    public apie_other_table $apie_address;
 
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();
 
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
         $tmp = $input->getId();
         $instance->id = $tmp ? $tmp->toNative() : null;
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
         $raw = Utils::getProperty($input, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address'));
-        $converted = MixedType::createFrom($raw);
+        $converted = apie_other_table::createFrom($raw);
         $instance->apie_address = $converted;
         return $instance;
     }
 
     public function inject(OriginalDomainObject $instance): void
     {
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
         $tmp = $this->apie_address;
-        $converted = $this->apie_address->toDomainObject();
+        $converted = $tmp; $tmp->inject(Utils::getProperty($instance, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address'))); $converted = $tmp;
         Utils::setProperty($instance, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address'), $converted);
     }
 }

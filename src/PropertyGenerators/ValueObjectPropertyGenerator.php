@@ -1,20 +1,12 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
-use Apie\Core\Identifiers\AutoIncrementInteger;
 use Apie\Core\Persistence\Fields\PropertySimpleValueObject;
 use Apie\Core\Persistence\PersistenceFieldInterface;
 use Apie\Core\Persistence\PersistenceTableInterface;
 use Apie\Core\Utils\ConverterUtils;
-use Apie\Core\ValueObjects\Utils;
-use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
-use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
 use LogicException;
-use ReflectionClass;
-use ReflectionNamedType;
 use ReflectionProperty;
 
 class ValueObjectPropertyGenerator extends AbstractPropertyGenerator
@@ -49,16 +41,14 @@ class ValueObjectPropertyGenerator extends AbstractPropertyGenerator
     protected function getDoctrineAttribute(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
-    ): string
-    {
+    ): string {
         return Column::class;
     }
 
     protected function getDoctrineAttributeValue(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
-    ): array
-    {
+    ): array {
         return [
             'type' => $field->getPersistenceType()->toDoctrineType(),
             'nullable' => $field->isAllowsNull(),
@@ -70,6 +60,7 @@ class ValueObjectPropertyGenerator extends AbstractPropertyGenerator
         PersistenceFieldInterface $field,
         ReflectionProperty $property
     ): string {
+        assert($field instanceof PropertySimpleValueObject);
         $class = ConverterUtils::toReflectionClass($field->getProperty()->getType());
         if ($class === null) {
             throw new LogicException('Field ' . $field->getName() . ' could not be cast to a class, type is ' . $field->getProperty()->getType());
