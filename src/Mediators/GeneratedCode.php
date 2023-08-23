@@ -16,6 +16,7 @@ class GeneratedCode
     private PhpNamespace $namespace;
     private ClassType $classType;
     private Method $createFrom;
+    private Method $updateFrom;
     private string $createFromCode = PHP_EOL;
 
     private Method $inject;
@@ -35,12 +36,30 @@ class GeneratedCode
         $this->classType->addImplement(GeneratedDoctrineEntityInterface::class);
         $this->classType->addAttribute(Entity::class);
 
+        $method = $this->classType->addMethod('getOriginalClassName')->setStatic(true)->setPublic();
+        $method->setComment(
+            'Return original domain object class.'
+             . PHP_EOL
+             . PHP_EOL
+             . '@return class-string<OriginalDomainObject>'
+        );
+        $method->setReturnType('string');
+        $method->setBody('return OriginalDomainObject::class;');
+
         $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic();
         $this->createFrom->addParameter('input')->setType($originalClassName);
+        $this->createFrom->setComment('Creates a doctrine entity from a domain class.');
         $this->createFrom->setReturnType('self');
         $this->createFrom->setBody('$instance = new self();' . PHP_EOL . 'return $instance;');
 
+        $this->updateFrom = $this->classType->addMethod('updateFrom')->setPublic();
+        $this->updateFrom->addParameter('input')->setType($originalClassName);
+        $this->updateFrom->setComment('Updates a doctrine entity from the domain class.');
+        $this->updateFrom->setReturnType('self');
+        $this->updateFrom->setBody('$instance = $this;' . PHP_EOL . 'return $instance;');
+
         $this->inject = $this->classType->addMethod('inject')->setPublic();
+        $this->inject->setComment('Overwrite the properties of the domain object with what is found in the entity.');
         $this->inject->setReturnType('void');
         $this->inject->addParameter('instance')->setType($originalClassName);
     }
@@ -68,6 +87,7 @@ class GeneratedCode
     {
         $this->createFromCode .= PHP_EOL . $code;
         $this->createFrom->setBody('$instance = new self();' . $this->createFromCode . PHP_EOL . 'return $instance;');
+        $this->updateFrom->setBody('$instance = $this;' . $this->createFromCode . PHP_EOL . 'return $instance;');
     }
 
     public function addInjectCode(string $code): void

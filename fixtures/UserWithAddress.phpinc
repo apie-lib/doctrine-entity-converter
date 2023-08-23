@@ -20,6 +20,19 @@ class apie_entity_example_user_with_address implements DtoInterface, GeneratedDo
     #[ORM\Column(type: 'text', nullable: false)]
     public string $apie_id;
 
+    /**
+     * Return original domain object class.
+     *
+     * @return class-string<OriginalDomainObject>
+     */
+    public static function getOriginalClassName(): string
+    {
+        return OriginalDomainObject::class;
+    }
+
+    /**
+     * Creates a doctrine entity from a domain class.
+     */
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();
@@ -43,6 +56,35 @@ class apie_entity_example_user_with_address implements DtoInterface, GeneratedDo
         return $instance;
     }
 
+    /**
+     * Updates a doctrine entity from the domain class.
+     */
+    public function updateFrom(OriginalDomainObject $input): self
+    {
+        $instance = $this;
+
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
+        $instance->id = $input->getId()->toNative();
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address'));
+        $converted = apie_other_table::createFrom($raw);
+        $instance->apie_address = $converted;
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\PropertySimpleValueObject
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $converted = $raw->toNative();
+        $instance->apie_id = $converted;
+        return $instance;
+    }
+
+    /**
+     * Overwrite the properties of the domain object with what is found in the entity.
+     */
     public function inject(OriginalDomainObject $instance): void
     {
         // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator

@@ -10,12 +10,37 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Example implements DtoInterface, GeneratedDoctrineEntityInterface
 {
+    /**
+     * Return original domain object class.
+     *
+     * @return class-string<OriginalDomainObject>
+     */
+    public static function getOriginalClassName(): string
+    {
+        return OriginalDomainObject::class;
+    }
+
+    /**
+     * Creates a doctrine entity from a domain class.
+     */
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();
         return $instance;
     }
 
+    /**
+     * Updates a doctrine entity from the domain class.
+     */
+    public function updateFrom(OriginalDomainObject $input): self
+    {
+        $instance = $this;
+        return $instance;
+    }
+
+    /**
+     * Overwrite the properties of the domain object with what is found in the entity.
+     */
     public function inject(OriginalDomainObject $instance): void
     {
     }
