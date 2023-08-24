@@ -9,4 +9,4 @@ services:
     Apie\DoctrineEntityConverter\EntityBuilder:
         factory: ['Apie\DoctrineEntityConverter\EntityBuilder', 'create']
         arguments:
-            - 'Generated\\'
+            - 'Generated'

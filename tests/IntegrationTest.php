@@ -36,11 +36,11 @@ class IntegrationTest extends TestCase
             $proxyDir,
             $cache
         );
-        $conn = array(
+        $conn = [
             'driver' => 'pdo_sqlite',
             'memory' => is_null($path),
             'path'   => $path
-        );
+        ];
 
         return EntityManager::create($conn, $config);
     }
