@@ -7,6 +7,7 @@ use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Apie\DoctrineEntityConverter\PropertyGenerators\AutoincrementIntegerPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\AutoincrementIntegerReferenceGenerator;
+use Apie\DoctrineEntityConverter\PropertyGenerators\EnumPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\MixedPropertyGenerator;
@@ -31,6 +32,7 @@ class EntityBuilder
             new FieldReferencePropertyGenerator(),
             new IdPropertyGenerator(),
             new ValueObjectPropertyGenerator(),
+            new EnumPropertyGenerator(),
             new MixedPropertyGenerator(),
         );
     }
