@@ -30,7 +30,7 @@ class EnumPropertyGenerator extends AbstractPropertyGenerator
         PersistenceFieldInterface $field
     ): string {
         assert($field instanceof PropertyEnum);
-        return ($field->isAllowsNull() ? '?' : '') . $field->getType();
+        return ($field->isAllowsNull() ? '?' : '') . $field->getProperty()->getType();
     }
 
 
