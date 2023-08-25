@@ -29,7 +29,7 @@ class DoctrineEntityConverterProvider extends ServiceProvider
             \Apie\DoctrineEntityConverter\EntityBuilder::class,
             function ($app) {
                 return \Apie\DoctrineEntityConverter\EntityBuilder::create(
-                    'Generated\\\\'
+                    'Generated'
                 );
                 
             }

@@ -40,13 +40,18 @@ final class OrmBuilder
     public function createOrm(string $path): void
     {
         $tableList = $this->persistenceLayerFactory->create($this->boundedContextHashmap);
+        if (!is_dir($path)) {
+            mkdir($path, recursive: true);
+        }
         foreach ($tableList as $table) {
             $fileName = $path . DIRECTORY_SEPARATOR . $table->getName() . '.php';
             $phpCode = $this->entityBuilder->createCodeFor($table);
             if ($this->validatePhpCode) {
                 $this->validate($phpCode, $table);
             }
-            file_put_contents($fileName, $phpCode);
+            if (false === @file_put_contents($fileName, $phpCode)) {
+                throw new RuntimeException(sprintf('Could not write file "%s"', $fileName));
+            }
         }
     }
 }
