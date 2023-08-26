@@ -3,6 +3,7 @@ namespace Apie\DoctrineEntityConverter;
 
 use Apie\Core\Persistence\Fields\FieldInvariant;
 use Apie\Core\Persistence\PersistenceTableInterface;
+use Apie\CountryAndPhoneNumber\PropertyGenerators\CountryAndPhoneNumberPropertyGenerator;
 use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Apie\DoctrineEntityConverter\PropertyGenerators\AutoincrementIntegerPropertyGenerator;
@@ -25,15 +26,20 @@ class EntityBuilder
 
     public static function create(string $namespace): self
     {
+        $additional = [];
+        if (class_exists(CountryAndPhoneNumberPropertyGenerator::class)) {
+            $additional[] = new CountryAndPhoneNumberPropertyGenerator();
+        }
+        $additional[] = new AutoincrementIntegerPropertyGenerator();
+        $additional[] = new AutoincrementIntegerReferenceGenerator();
+        $additional[] = new FieldReferencePropertyGenerator();
+        $additional[] = new IdPropertyGenerator();
+        $additional[] = new ValueObjectPropertyGenerator();
+        $additional[] = new EnumPropertyGenerator();
+        $additional[] = new MixedPropertyGenerator();
         return new self(
             $namespace,
-            new AutoincrementIntegerPropertyGenerator(),
-            new AutoincrementIntegerReferenceGenerator(),
-            new FieldReferencePropertyGenerator(),
-            new IdPropertyGenerator(),
-            new ValueObjectPropertyGenerator(),
-            new EnumPropertyGenerator(),
-            new MixedPropertyGenerator(),
+            ...$additional,
         );
     }
 
