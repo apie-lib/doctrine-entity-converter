@@ -31,6 +31,7 @@
     "apie/composite-value-objects": "self.version",
     "apie/text-value-objects": "self.version",
     "apie/fixtures": "self.version",
+    "doctrine/doctrine-bundle": "*",
     "phpunit/phpunit": "^9.5",
     "phpspec/prophecy-phpunit": "^2.0",
     "symfony/cache": "^6.0"
