@@ -20,9 +20,12 @@ final class Utils
         $property->setValue($instance, $value);
     }
 
-    public static function getProperty(mixed $instance, ReflectionProperty $property): mixed
+    public static function getProperty(mixed $instance, ReflectionProperty $property, bool $strictCheck = true): mixed
     {
         $property->setAccessible(true);
-        return $property->getValue($instance);
+        if ($property->isInitialized($instance) || $strictCheck) {
+            return $property->getValue($instance);
+        }
+        return null;
     }
 }

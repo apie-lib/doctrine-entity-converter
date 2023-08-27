@@ -72,7 +72,7 @@ class FieldReferencePropertyGenerator extends AbstractPropertyGenerator
         }
 
         return sprintf(
-            '$tmp; $tmp->inject(Utils::getProperty($instance, new \ReflectionProperty(%s::class, %s))); $converted = $tmp',
+            '$tmp; $propertyValue = Utils::getProperty($instance, new \ReflectionProperty(%s::class, %s), false); if ($propertyValue) { $tmp->inject($propertyValue); }; $converted = $tmp',
             $declaringClass,
             var_export($property->name, true)
         );
