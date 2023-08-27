@@ -49,9 +49,18 @@ final class OrmBuilder
             if ($this->validatePhpCode) {
                 $this->validate($phpCode, $table);
             }
-            if (false === @file_put_contents($fileName, $phpCode)) {
-                throw new RuntimeException(sprintf('Could not write file "%s"', $fileName));
-            }
+            $this->putFile($fileName, $phpCode);
+        }
+    }
+
+    private function putFile(string $fileName, string $phpCode)
+    {
+        if (is_readable($fileName) && file_get_contents($fileName) === $phpCode) {
+            // this keeps the current modification date active
+            return;
+        }
+        if (false === @file_put_contents($fileName, $phpCode)) {
+            throw new RuntimeException(sprintf('Could not write file "%s"', $fileName));
         }
     }
 }
