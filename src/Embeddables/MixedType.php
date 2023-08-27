@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Embeddable;
 
 /**
- * Maps any type to a doctrine column. To allow any type, we basically store
+ * Maps any type to a doctrine column. To allow any type, we basically store the serialized php string.
  */
 #[Embeddable]
 class MixedType
