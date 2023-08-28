@@ -2,19 +2,20 @@
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
 use Apie\Core\Persistence\Fields\PropertyEnum;
+use Apie\Core\Persistence\Fields\PropertyPrimitive;
 use Apie\Core\Persistence\PersistenceFieldInterface;
 use Apie\Core\Persistence\PersistenceTableInterface;
 use Doctrine\ORM\Mapping\Column;
 use ReflectionProperty;
 
-class EnumPropertyGenerator extends AbstractPropertyGenerator
+class PrimitivePropertyGenerator extends AbstractPropertyGenerator
 {
     protected function supportsProperty(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field,
         ReflectionProperty $property
     ): bool {
-        return $field instanceof PropertyEnum;
+        return $field instanceof PropertyPrimitive;
     }
 
     protected function generateFromCodeConversion(
@@ -29,7 +30,7 @@ class EnumPropertyGenerator extends AbstractPropertyGenerator
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
     ): string {
-        assert($field instanceof PropertyEnum);
+        assert($field instanceof PropertyPrimitive);
         return (string) $field->getProperty()->getType();
     }
 
@@ -49,7 +50,6 @@ class EnumPropertyGenerator extends AbstractPropertyGenerator
         return [
             'type' => $field->getPersistenceType()->toDoctrineType(),
             'nullable' => $field->isAllowsNull(),
-            'enumType' => (string) $field->getProperty()->getType(),
         ];
     }
 

@@ -12,6 +12,7 @@ use Apie\DoctrineEntityConverter\PropertyGenerators\EnumPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\MixedPropertyGenerator;
+use Apie\DoctrineEntityConverter\PropertyGenerators\PrimitivePropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator;
 
 class EntityBuilder
@@ -34,6 +35,7 @@ class EntityBuilder
         $additional[] = new AutoincrementIntegerReferenceGenerator();
         $additional[] = new FieldReferencePropertyGenerator();
         $additional[] = new IdPropertyGenerator();
+        $additional[] = new PrimitivePropertyGenerator();
         $additional[] = new ValueObjectPropertyGenerator();
         $additional[] = new EnumPropertyGenerator();
         $additional[] = new MixedPropertyGenerator();
