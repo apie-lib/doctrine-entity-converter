@@ -93,7 +93,7 @@ class apie_entity_example_user_with_address implements DtoInterface, GeneratedDo
         // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
         // field class Apie\Core\Persistence\Fields\FieldReference
         $tmp = $this->apie_address;
-        $converted = $tmp; $propertyValue = Utils::getProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), false); if ($propertyValue) { $tmp->inject($propertyValue); }; $converted = $tmp;
+        $converted = $tmp; Utils::injectEmbeddedObject($this, new \ReflectionProperty(__CLASS__, 'apie_address'), $instance, new \ReflectionProperty(OriginalDomainObject::class, 'address')); $converted = $this->apie_address;
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $converted);
 
         // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator

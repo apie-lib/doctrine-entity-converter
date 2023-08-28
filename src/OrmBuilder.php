@@ -53,7 +53,7 @@ final class OrmBuilder
         }
     }
 
-    private function putFile(string $fileName, string $phpCode)
+    private function putFile(string $fileName, string $phpCode): void
     {
         if (is_readable($fileName) && file_get_contents($fileName) === $phpCode) {
             // this keeps the current modification date active

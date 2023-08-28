@@ -70,11 +70,12 @@ class FieldReferencePropertyGenerator extends AbstractPropertyGenerator
         if ($table->getOriginalClass() !== $declaredClass) {
             $declaringClass = '\\' . $declaredClass;
         }
-
         return sprintf(
-            '$tmp; $propertyValue = Utils::getProperty($instance, new \ReflectionProperty(%s::class, %s), false); if ($propertyValue) { $tmp->inject($propertyValue); }; $converted = $tmp',
+            '$tmp; Utils::injectEmbeddedObject($this, new \ReflectionProperty(__CLASS__, %s), $instance, new \ReflectionProperty(%s::class, %s)); $converted = $this->%s',
+            var_export($field->getName(), true),
             $declaringClass,
-            var_export($property->name, true)
+            var_export($property->name, true),
+            $field->getName()
         );
     }
 }

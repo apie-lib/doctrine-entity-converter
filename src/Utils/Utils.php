@@ -2,6 +2,7 @@
 namespace Apie\DoctrineEntityConverter\Utils;
 
 use Apie\Core\Utils\ConverterUtils;
+use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use ReflectionProperty;
 
 final class Utils
@@ -26,6 +27,42 @@ final class Utils
         if ($property->isInitialized($instance) || $strictCheck) {
             return $property->getValue($instance);
         }
+        if ($property->hasDefaultValue()) {
+            return $property->getDefaultValue();
+        }
+
+        $type = $property->getType();
+        $class = ConverterUtils::toReflectionClass($type);
+        if ($class) {
+            return $class->newInstanceWithoutConstructor();
+        }
+
         return null;
+    }
+
+    public static function injectEmbeddedObject(
+        GeneratedDoctrineEntityInterface $entity,
+        ReflectionProperty $entityProperty,
+        mixed $domainObject,
+        ReflectionProperty $domainProperty
+    ): void {
+        $entityPropertyValue = self::getProperty($entity, $entityProperty, false);
+        $domainPropertyValue = self::getProperty($domainObject, $domainProperty, false);
+        if ($entityPropertyValue instanceof GeneratedDoctrineEntityInterface) {
+            if (is_object($domainPropertyValue)) {
+                $entityPropertyValue->inject($domainPropertyValue);
+            } else {
+                self::setProperty($entity, $entityProperty, $domainPropertyValue);
+            }
+        } else {
+            if (is_object($domainPropertyValue)) {
+                $class = ConverterUtils::toReflectionClass($entityProperty->getType())?->name;
+                assert($class !== null);
+                /** @var class-string<GeneratedDoctrineEntityInterface> $class */
+                self::setProperty($entity, $entityProperty, $class::createFrom($domainPropertyValue));
+            } else {
+                self::setProperty($entity, $entityProperty, $domainPropertyValue);
+            }
+        }
     }
 }
