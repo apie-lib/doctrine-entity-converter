@@ -31,7 +31,7 @@ class PrimitivePropertyGenerator extends AbstractPropertyGenerator
         PersistenceFieldInterface $field
     ): string {
         assert($field instanceof PropertyPrimitive);
-        return (string) $field->getProperty()->getType();
+        return (string) $field->getType();
     }
 
 
