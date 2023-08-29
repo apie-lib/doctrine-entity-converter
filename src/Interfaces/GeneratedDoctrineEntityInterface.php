@@ -2,6 +2,7 @@
 namespace Apie\DoctrineEntityConverter\Interfaces;
 
 use Apie\Core\Entities\EntityInterface;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Marker interface for generated doctrine entities.
@@ -10,7 +11,7 @@ use Apie\Core\Entities\EntityInterface;
  * @method self updateFrom(object $object)
  * @method static self createFrom(object $object)
  * @method static class-string<EntityInterface> getOriginalClassName()
- *
+ * @property Collection<int, GeneratedDoctrineEntityInterface> $_indexTable
  */
 interface GeneratedDoctrineEntityInterface
 {

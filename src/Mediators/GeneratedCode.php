@@ -22,14 +22,16 @@ class GeneratedCode
     private Method $inject;
     private string $injectCode = PHP_EOL;
 
-    public function __construct(string $namespace, string $className, string $originalClassName)
+    public function __construct(string $namespace, string $className, ?string $originalClassName)
     {
         $this->namespace = new PhpNamespace($namespace);
         $this->namespace->addUse(DtoInterface::class);
         $this->namespace->addUse('Doctrine\ORM\Mapping', 'ORM');
         $this->namespace->addUse(GeneratedDoctrineEntityInterface::class);
         $this->namespace->addUse(Utils::class);
-        $this->namespace->addUse($originalClassName, 'OriginalDomainObject');
+        if ($originalClassName) {
+            $this->namespace->addUse($originalClassName, 'OriginalDomainObject');
+        }
 
         $this->classType = $this->namespace->addClass($className);
         $this->classType->addImplement(DtoInterface::class);
@@ -43,8 +45,8 @@ class GeneratedCode
              . PHP_EOL
              . '@return class-string<OriginalDomainObject>'
         );
-        $method->setReturnType('string');
-        $method->setBody('return OriginalDomainObject::class;');
+        $method->setReturnType('?string');
+        $method->setBody($originalClassName ? 'return OriginalDomainObject::class;' : 'return null;');
 
         $this->createFrom = $this->classType->addMethod('createFrom')->setStatic(true)->setPublic();
         $this->createFrom->addParameter('input')->setType($originalClassName);
@@ -78,6 +80,9 @@ class GeneratedCode
 
     public function addProperty(string $typehint, string $propertyName): Property
     {
+        if (str_starts_with($typehint, 'apie_')) {
+            $typehint = $this->namespace->getName() . '\\' . $typehint;
+        }
         $property = $this->classType->addProperty($propertyName)
             ->setType($typehint);
         return $property;

@@ -23,7 +23,7 @@ class apie_entity_example_user_with_address implements DtoInterface, GeneratedDo
      *
      * @return class-string<OriginalDomainObject>
      */
-    public static function getOriginalClassName(): string
+    public static function getOriginalClassName(): ?string
     {
         return OriginalDomainObject::class;
     }

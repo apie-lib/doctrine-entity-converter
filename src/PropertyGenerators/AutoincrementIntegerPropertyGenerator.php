@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping\Id;
  */
 final class AutoincrementIntegerPropertyGenerator implements PropertyGeneratorInterface
 {
-    private const DUMMY = '// this code is never used, just generated' . PHP_EOL;
+    private const DUMMY = '// not used in conversion, just for administration' . PHP_EOL;
 
     public function isSupported(PersistenceTableInterface $table, PersistenceFieldInterface $field): bool
     {

@@ -18,7 +18,7 @@ class Example implements DtoInterface, GeneratedDoctrineEntityInterface
      *
      * @return class-string<OriginalDomainObject>
      */
-    public static function getOriginalClassName(): string
+    public static function getOriginalClassName(): ?string
     {
         return OriginalDomainObject::class;
     }

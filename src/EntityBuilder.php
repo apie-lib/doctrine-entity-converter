@@ -11,6 +11,8 @@ use Apie\DoctrineEntityConverter\PropertyGenerators\AutoincrementIntegerReferenc
 use Apie\DoctrineEntityConverter\PropertyGenerators\EnumPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator;
+use Apie\DoctrineEntityConverter\PropertyGenerators\IndexTableReferencePropertyGenerator;
+use Apie\DoctrineEntityConverter\PropertyGenerators\ManyToEntityReferencePropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\MixedPropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\PrimitivePropertyGenerator;
 use Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator;
@@ -31,6 +33,8 @@ class EntityBuilder
         if (class_exists(CountryAndPhoneNumberPropertyGenerator::class)) {
             $additional[] = new CountryAndPhoneNumberPropertyGenerator();
         }
+        $additional[] = new IndexTableReferencePropertyGenerator();
+        $additional[] = new ManyToEntityReferencePropertyGenerator();
         $additional[] = new AutoincrementIntegerPropertyGenerator();
         $additional[] = new AutoincrementIntegerReferenceGenerator();
         $additional[] = new FieldReferencePropertyGenerator();
