@@ -6,6 +6,7 @@ use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
 use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpNamespace;
@@ -30,6 +31,7 @@ class GeneratedCode
         $this->namespace->addUse('Doctrine\ORM\Mapping', 'ORM');
         $this->namespace->addUse(GeneratedDoctrineEntityInterface::class);
         $this->namespace->addUse(HasGeneralDoctrineFields::class);
+        $this->namespace->addUse(HasLifecycleCallbacks::class);
         $this->namespace->addUse(Utils::class);
         if ($originalClassName) {
             $this->namespace->addUse($originalClassName, 'OriginalDomainObject');
@@ -40,6 +42,7 @@ class GeneratedCode
         $this->classType->addImplement(DtoInterface::class);
         $this->classType->addImplement(GeneratedDoctrineEntityInterface::class);
         $this->classType->addAttribute(Entity::class);
+        $this->classType->addAttribute(HasLifecycleCallbacks::class);
 
         $method = $this->classType->addMethod('getOriginalClassName')->setStatic(true)->setPublic();
         $method->setComment(
