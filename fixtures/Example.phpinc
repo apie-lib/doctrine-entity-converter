@@ -2,6 +2,7 @@
 namespace Generated\Example;
 
 use Apie\Core\Dto\DtoInterface;
+use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
 use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Dto\EmptyDto as OriginalDomainObject;
@@ -10,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Example implements DtoInterface, GeneratedDoctrineEntityInterface
 {
+    use HasGeneralDoctrineFields;
+
     /**
      * Return original domain object class.
      *

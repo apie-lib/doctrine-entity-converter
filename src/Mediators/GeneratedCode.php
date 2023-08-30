@@ -2,6 +2,7 @@
 namespace Apie\DoctrineEntityConverter\Mediators;
 
 use Apie\Core\Dto\DtoInterface;
+use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
 use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Doctrine\ORM\Mapping\Entity;
@@ -28,12 +29,14 @@ class GeneratedCode
         $this->namespace->addUse(DtoInterface::class);
         $this->namespace->addUse('Doctrine\ORM\Mapping', 'ORM');
         $this->namespace->addUse(GeneratedDoctrineEntityInterface::class);
+        $this->namespace->addUse(HasGeneralDoctrineFields::class);
         $this->namespace->addUse(Utils::class);
         if ($originalClassName) {
             $this->namespace->addUse($originalClassName, 'OriginalDomainObject');
         }
 
         $this->classType = $this->namespace->addClass($className);
+        $this->classType->addTrait(HasGeneralDoctrineFields::class);
         $this->classType->addImplement(DtoInterface::class);
         $this->classType->addImplement(GeneratedDoctrineEntityInterface::class);
         $this->classType->addAttribute(Entity::class);
