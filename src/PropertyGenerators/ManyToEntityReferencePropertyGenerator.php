@@ -28,11 +28,16 @@ class ManyToEntityReferencePropertyGenerator implements PropertyGeneratorInterfa
                 'inversedBy' => '_indexTable',
             ]
         );
+        // index tables have hardcoded properties
         if ($table instanceof EntityIndexMetadata) {
-            $property = $code->addProperty('float', 'priority');
+            $property = $code->addProperty('string', 'priority');
             $property->addAttribute(Column::class, ['type' => 'decimal', 'precision' => 2, 'scale' => 2]);
             $property = $code->addProperty('string', 'text');
             $property->addAttribute(Column::class, ['type' => 'text']);
+            $property = $code->addProperty('float', 'tf')->setValue(0.0);
+            $property->addAttribute(Column::class, ['type' => 'float', 'options' => ['default' => 0]]);
+            $property = $code->addProperty('float', 'idf')->setValue(0.0);
+            $property->addAttribute(Column::class, ['type' => 'float', 'options' => ['default' => 0]]);
         }
     }
 }
