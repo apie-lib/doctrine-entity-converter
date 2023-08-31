@@ -107,4 +107,16 @@ class apie_entity_example_user_with_address implements DtoInterface, GeneratedDo
         $converted = \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($tmp);
         Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $converted);
     }
+
+    /**
+     * Returns the mapping between the original object and the doctrine entity.
+     *
+     * @return array<string, string>
+     */
+    public static function getMapping(): array
+    {
+        return array (
+          'id' => 'apie_id',
+        );
+    }
 }

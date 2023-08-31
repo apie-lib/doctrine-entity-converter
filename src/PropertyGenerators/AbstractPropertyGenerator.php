@@ -64,6 +64,11 @@ abstract class AbstractPropertyGenerator implements PropertyGeneratorInterface
         ReflectionProperty $property
     ): string;
 
+    protected function hasFilter(): bool
+    {
+        return false;
+    }
+
     public function apply(GeneratedCode $code, PersistenceTableInterface $table, PersistenceFieldInterface $field): void
     {
         $fromCode = $this->generateFromCode($table, $field);
@@ -73,6 +78,11 @@ abstract class AbstractPropertyGenerator implements PropertyGeneratorInterface
         $type = $this->getTypeForProperty($table, $field);
         if (str_starts_with($type, 'apie_')) {
             $type = $code->getNamespace() . '\\' . $type;
+        }
+        assert(is_callable([$field, 'getProperty']));
+        $property = $field->getProperty();
+        if ($this->hasFilter()) {
+            $code->addMapping($property->name, $field->getName());
         }
         $this->lastGeneratedProperty = $code->addProperty($type, $field->getName());
         $this->lastGeneratedProperty->addAttribute($this->getDoctrineAttribute($table, $field), $this->getDoctrineAttributeValue($table, $field));

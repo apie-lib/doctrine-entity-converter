@@ -89,4 +89,15 @@ class apie_entity_example_user_with_address implements DtoInterface, GeneratedDo
         $converted = $tmp; Utils::injectEmbeddedObject($this, new \ReflectionProperty(__CLASS__, 'apie_address'), $instance, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address')); $converted = $this->apie_address;
         Utils::setProperty($instance, new \ReflectionProperty(\Apie\Fixtures\Entities\UserWithAutoincrementKey::class, 'address'), $converted);
     }
+
+    /**
+     * Returns the mapping between the original object and the doctrine entity.
+     *
+     * @return array<string, string>
+     */
+    public static function getMapping(): array
+    {
+        return array (
+        );
+    }
 }

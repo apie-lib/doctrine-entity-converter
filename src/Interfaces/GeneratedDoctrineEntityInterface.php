@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
  * @method self updateFrom(object $object)
  * @method static self createFrom(object $object)
  * @method static class-string<EntityInterface> getOriginalClassName()
+ * @method static array<string, string> getMapping()
  * @property Collection<int, GeneratedDoctrineEntityInterface> $_indexTable
  */
 interface GeneratedDoctrineEntityInterface

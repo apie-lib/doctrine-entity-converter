@@ -20,9 +20,11 @@ class GeneratedCode
     private Method $createFrom;
     private Method $updateFrom;
     private string $createFromCode = PHP_EOL;
-
     private Method $inject;
     private string $injectCode = PHP_EOL;
+    private Method $getMapping;
+    /** @var array<string, string> */
+    private array $mapping = [];
 
     public function __construct(string $namespace, string $className, ?string $originalClassName)
     {
@@ -70,6 +72,22 @@ class GeneratedCode
         $this->inject->setComment('Overwrite the properties of the domain object with what is found in the entity.');
         $this->inject->setReturnType('void');
         $this->inject->addParameter('instance')->setType($originalClassName);
+
+        $this->getMapping = $this->classType->addMethod('getMapping')->setStatic(true)->setPublic();
+        $this->getMapping->setComment(
+            'Returns the mapping between the original object and the doctrine entity.'
+            . PHP_EOL
+            . PHP_EOL
+            . '@return array<string, string>'
+        );
+        $this->getMapping->setReturnType('array');
+    }
+
+    public function addMapping(string $originalPropertyName, string $doctrinePropertyName): self
+    {
+        $this->mapping[$originalPropertyName] = $doctrinePropertyName;
+
+        return $this;
     }
 
     public function getNamespace(): string
@@ -109,6 +127,7 @@ class GeneratedCode
 
     public function toCode(): string
     {
+        $this->getMapping->setBody('return ' . var_export($this->mapping, true) . ';');
         $printer = new PsrPrinter();
         return '<?php' . PHP_EOL . $printer->printNamespace($this->namespace);
     }

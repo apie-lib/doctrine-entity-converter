@@ -25,6 +25,11 @@ class EnumPropertyGenerator extends AbstractPropertyGenerator
         return '$raw';
     }
 
+    protected function hasFilter(): bool
+    {
+        return true;
+    }
+
     protected function getTypeForProperty(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field

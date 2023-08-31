@@ -54,4 +54,15 @@ class Example implements DtoInterface, GeneratedDoctrineEntityInterface
         $instance->test = "example";
         $this->addCreateFromCode = "example";
     }
+
+    /**
+     * Returns the mapping between the original object and the doctrine entity.
+     *
+     * @return array<string, string>
+     */
+    public static function getMapping(): array
+    {
+        return array (
+        );
+    }
 }

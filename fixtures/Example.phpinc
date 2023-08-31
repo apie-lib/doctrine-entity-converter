@@ -49,4 +49,15 @@ class Example implements DtoInterface, GeneratedDoctrineEntityInterface
     public function inject(OriginalDomainObject $instance): void
     {
     }
+
+    /**
+     * Returns the mapping between the original object and the doctrine entity.
+     *
+     * @return array<string, string>
+     */
+    public static function getMapping(): array
+    {
+        return array (
+        );
+    }
 }

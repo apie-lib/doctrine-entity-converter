@@ -19,6 +19,11 @@ class ValueObjectPropertyGenerator extends AbstractPropertyGenerator
         return $field instanceof PropertySimpleValueObject;
     }
 
+    protected function hasFilter(): bool
+    {
+        return true;
+    }
+
     protected function generateFromCodeConversion(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field,

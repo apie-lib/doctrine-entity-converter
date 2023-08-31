@@ -18,6 +18,11 @@ class PrimitivePropertyGenerator extends AbstractPropertyGenerator
         return $field instanceof PropertyPrimitive;
     }
 
+    protected function hasFilter(): bool
+    {
+        return true;
+    }
+
     protected function generateFromCodeConversion(
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field,
