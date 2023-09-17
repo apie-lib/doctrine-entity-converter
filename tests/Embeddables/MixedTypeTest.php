@@ -19,10 +19,10 @@ class MixedTypeTest extends TestCase
 
     public function mixedProvider(): iterable
     {
-        yield [null];
-        yield ['string'];
-        yield [42];
-        yield [1.5];
-        yield [new CompositeValueObjectExample()];
+        yield 'null' => [null];
+        yield 'string value' => ['string'];
+        yield 'integer' => [42];
+        yield 'floating point' => [1.5];
+        yield 'array of random object' => [new CompositeValueObjectExample()];
     }
 }
