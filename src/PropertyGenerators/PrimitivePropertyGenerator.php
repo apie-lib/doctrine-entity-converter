@@ -51,7 +51,7 @@ class PrimitivePropertyGenerator extends AbstractPropertyGenerator
         PersistenceTableInterface $table,
         PersistenceFieldInterface $field
     ): array {
-        assert($field instanceof PropertyEnum);
+        assert($field instanceof PropertyPrimitive);
         return [
             'type' => $field->getPersistenceType()->toDoctrineType(),
             'nullable' => $field->isAllowsNull(),
