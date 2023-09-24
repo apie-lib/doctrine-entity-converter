@@ -1,7 +1,6 @@
 <?php
 namespace Apie\DoctrineEntityConverter\PropertyGenerators;
 
-use Apie\Core\Persistence\Fields\PropertyEnum;
 use Apie\Core\Persistence\Fields\PropertyPrimitive;
 use Apie\Core\Persistence\PersistenceFieldInterface;
 use Apie\Core\Persistence\PersistenceTableInterface;
