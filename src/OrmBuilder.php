@@ -50,7 +50,7 @@ final class OrmBuilder
             if ($this->validatePhpCode) {
                 $this->validate($phpCode, $table);
             }
-            $modified = $modified || $this->putFile($fileName, $phpCode);
+            $modified = $this->putFile($fileName, $phpCode) || $modified;
         }
 
         return $modified;
