@@ -37,30 +37,35 @@ final class OrmBuilder
         }
     }
 
-    public function createOrm(string $path): void
+    public function createOrm(string $path): bool
     {
         $tableList = $this->persistenceLayerFactory->create($this->boundedContextHashmap);
         if (!is_dir($path)) {
             mkdir($path, recursive: true);
         }
+        $modified = false;
         foreach ($tableList as $table) {
             $fileName = $path . DIRECTORY_SEPARATOR . $table->getName() . '.php';
             $phpCode = $this->entityBuilder->createCodeFor($table);
             if ($this->validatePhpCode) {
                 $this->validate($phpCode, $table);
             }
-            $this->putFile($fileName, $phpCode);
+            $modified = $modified || $this->putFile($fileName, $phpCode);
         }
+
+        return $modified;
     }
 
-    private function putFile(string $fileName, string $phpCode): void
+    private function putFile(string $fileName, string $phpCode): bool
     {
         if (is_readable($fileName) && file_get_contents($fileName) === $phpCode) {
             // this keeps the current modification date active
-            return;
+            return false;
         }
         if (false === @file_put_contents($fileName, $phpCode)) {
             throw new RuntimeException(sprintf('Could not write file "%s"', $fileName));
         }
+
+        return true;
     }
 }
