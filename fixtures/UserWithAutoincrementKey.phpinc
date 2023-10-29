@@ -3,6 +3,7 @@ namespace Test\RenderOnly;
 
 use Apie\Core\Dto\DtoInterface;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
+use Apie\DoctrineEntityConverter\Concerns\IsLinkedToEntity;
 use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
@@ -14,6 +15,7 @@ use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 class apie_entity_example_user_with_address implements DtoInterface, GeneratedDoctrineEntityInterface
 {
     use HasGeneralDoctrineFields;
+    use IsLinkedToEntity;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     #[ORM\Id]

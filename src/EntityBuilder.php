@@ -3,7 +3,10 @@ namespace Apie\DoctrineEntityConverter;
 
 use Apie\Core\Persistence\Fields\FieldInvariant;
 use Apie\Core\Persistence\PersistenceTableInterface;
+use Apie\Core\Utils\EntityUtils;
 use Apie\CountryAndPhoneNumber\PropertyGenerators\CountryAndPhoneNumberPropertyGenerator;
+use Apie\DoctrineEntityConverter\Concerns\IsLinkedToEntity;
+use Apie\DoctrineEntityConverter\Concerns\IsLinkedToPolymorphicEntity;
 use Apie\DoctrineEntityConverter\Interfaces\PropertyGeneratorInterface;
 use Apie\DoctrineEntityConverter\Mediators\GeneratedCode;
 use Apie\DoctrineEntityConverter\PropertyGenerators\AutoincrementIntegerPropertyGenerator;
@@ -52,6 +55,14 @@ class EntityBuilder
     public function createCodeFor(PersistenceTableInterface $table): string
     {
         $generatedCode = new GeneratedCode($this->namespace, $table->getName(), $table->getOriginalClass());
+        $originalClass = $table->getOriginalClass();
+        if ($originalClass) {
+            if (EntityUtils::isNonPolymorphicEntity($originalClass)) {
+                $generatedCode->addTrait(IsLinkedToEntity::class);
+            } elseif (EntityUtils::isPolymorphicEntity($originalClass)) {
+                $generatedCode->addTrait(IsLinkedToPolymorphicEntity::class);
+            }
+        }
         foreach ($table->getFields() as $field) {
             $realField = ($field instanceof FieldInvariant) ? $field->getDecoratedField() : $field;
             $found = false;

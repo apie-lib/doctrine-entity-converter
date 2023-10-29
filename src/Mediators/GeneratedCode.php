@@ -83,6 +83,12 @@ class GeneratedCode
         $this->getMapping->setReturnType('array');
     }
 
+    public function addTrait(string $trait): void
+    {
+        $this->namespace->addUse($trait);
+        $this->classType->addTrait($trait);
+    }
+
     public function addMapping(string $originalPropertyName, string $doctrinePropertyName): self
     {
         $this->mapping[$originalPropertyName] = $doctrinePropertyName;
