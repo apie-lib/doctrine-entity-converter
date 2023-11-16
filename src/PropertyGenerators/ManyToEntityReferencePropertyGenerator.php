@@ -23,7 +23,6 @@ class ManyToEntityReferencePropertyGenerator implements PropertyGeneratorInterfa
         $property->addAttribute(
             ManyToOne::class,
             [
-                'cascade' => ['all'],
                 'targetEntity' => $field->getEntityReference(),
                 'inversedBy' => '_indexTable',
             ]
