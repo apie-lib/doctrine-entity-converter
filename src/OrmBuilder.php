@@ -2,8 +2,9 @@
 namespace Apie\DoctrineEntityConverter;
 
 use Apie\Core\BoundedContext\BoundedContextHashmap;
-use Apie\Core\Persistence\PersistenceLayerFactory;
-use Apie\Core\Persistence\PersistenceTableInterface;
+use Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory;
+use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\PhpNamespace;
 use PhpParser\Error;
 use PhpParser\ParserFactory;
 use RuntimeException;
@@ -11,14 +12,14 @@ use RuntimeException;
 final class OrmBuilder
 {
     public function __construct(
-        private readonly EntityBuilder $entityBuilder,
         private readonly PersistenceLayerFactory $persistenceLayerFactory,
         private readonly BoundedContextHashmap $boundedContextHashmap,
-        private readonly bool $validatePhpCode = true
+        private readonly bool $validatePhpCode = true,
+        private readonly string $namespace = 'Generated\\ApieEntities'
     ) {
     }
 
-    private function validate(string $phpCode, PersistenceTableInterface $table): void
+    private function validate(string $phpCode, string $tableName): void
     {
         $parser = (new ParserFactory)->create(ParserFactory::ONLY_PHP7);
         try {
@@ -27,7 +28,7 @@ final class OrmBuilder
             throw new RuntimeException(
                 sprintf(
                     'I rendered an invalid PHP file for table %s. The error message is "%s". The generated code is ' . PHP_EOL . '%s',
-                    $table->getName(),
+                    $tableName(),
                     $error->getMessage(),
                     $phpCode
                 ),
@@ -37,18 +38,38 @@ final class OrmBuilder
         }
     }
 
+    private function wrapNamespace(ClassType $classType): string
+    {
+        $type = new PhpNamespace($this->namespace);
+        $type->addUse('Apie\\StorageMetadata\\Attributes', 'Attr');
+        $type->addUse('Apie\\StorageMetadata\\Interfaces', 'StorageMetadata');
+        $type->addUse('Doctrine\\ORM\\Mapping', 'DoctrineMapping');
+        foreach ($classType->getProperties() as $property) {
+            if ($property->getType() && str_starts_with($property->getType(), 'apie_')) {
+                $property->setType($this->namespace . '\\' . $property->getType());
+            }
+        }
+        foreach ($classType->getMethods() as $method) {
+            if ($method->getReturnType() && str_starts_with($method->getReturnType(), 'apie_')) {
+                $method->setReturnType($this->namespace . '\\' . $method->getReturnType());
+            }
+        }
+        $type->add($classType);
+        return '<?php' . PHP_EOL . $type;
+    }
+
     public function createOrm(string $path): bool
     {
         $tableList = $this->persistenceLayerFactory->create($this->boundedContextHashmap);
         if (!is_dir($path)) {
-            mkdir($path, recursive: true);
+            @mkdir($path, recursive: true);
         }
         $modified = false;
-        foreach ($tableList as $table) {
-            $fileName = $path . DIRECTORY_SEPARATOR . $table->getName() . '.php';
-            $phpCode = $this->entityBuilder->createCodeFor($table);
+        foreach ($tableList->generatedCodeHashmap as $filePath => $code) {
+            $fileName = $path . DIRECTORY_SEPARATOR . $filePath . '.php';
+            $phpCode = $this->wrapNamespace($code);
             if ($this->validatePhpCode) {
-                $this->validate($phpCode, $table);
+                $this->validate($phpCode, $filePath);
             }
             $modified = $this->putFile($fileName, $phpCode) || $modified;
         }

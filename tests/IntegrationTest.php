@@ -3,16 +3,13 @@ namespace Apie\Tests\DoctrineEntityConverter;
 
 use Apie\Core\Entities\EntityInterface;
 use Apie\Core\IdentifierUtils;
-use Apie\Core\Persistence\PersistenceLayerFactory;
-use Apie\Core\Persistence\PersistenceMetadataFactory;
-use Apie\DoctrineEntityConverter\EntityBuilder;
-use Apie\DoctrineEntityConverter\Exceptions\ContentsCouldNotBeDeserialized;
+use Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory;
 use Apie\DoctrineEntityConverter\OrmBuilder;
 use Apie\Fixtures\BoundedContextFactory;
 use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey;
 use Apie\Fixtures\ValueObjects\AddressWithZipcodeCheck;
-use Apie\Tests\DoctrineEntityConverter\Concerns\HasEntityBuilder;
+use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\TextValueObjects\DatabaseText;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,8 +20,6 @@ use ReflectionClass;
 
 class IntegrationTest extends TestCase
 {
-    use HasEntityBuilder;
-
     protected function createEntityManager(string $mockPath, ?string $path = null): EntityManagerInterface
     {
         $isDevMode = true;
@@ -77,7 +72,7 @@ class IntegrationTest extends TestCase
         try {
             $reflClass = new ReflectionClass($domainObject);
             $namespace = 'Generated\Example' . uniqid();
-            $generatedClassName = 'apie_entity_' . $boundedContextId . '_' . IdentifierUtils::classNameToUnderscore($reflClass);
+            $generatedClassName = 'apie_resource__' . $boundedContextId . '_' . IdentifierUtils::classNameToUnderscore($reflClass);
             $generatedEntityClassName = $namespace . '\\' . $generatedClassName;
             $entityManager = $this->givenAnEntityManagerFromGeneratedClass(
                 $namespace,
@@ -85,41 +80,17 @@ class IntegrationTest extends TestCase
                 $boundedContextId,
                 $reflClass
             );
+            $converter = DomainToStorageConverter::create();
 
-            $entity = $generatedEntityClassName::createFrom($domainObject);
+            $entity = $converter->createStorageObject(
+                $domainObject,
+                new ReflectionClass($generatedEntityClassName)
+            );
             $entityManager->persist($entity);
             $entityManager->flush();
             $testBefore($domainObject);
-            $entity->inject($domainObject);
+            $converter->injectExistingDomainObject($domainObject, $entity);
             $testAfter($domainObject);
-        } finally {
-            system('rm -rf ' . escapeshellarg($tempFolder));
-        }
-    }
-
-    public function testSerializationError()
-    {
-        $this->markTestIncomplete('should update address.sql');
-        $tempFolder = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid('doctrine-');
-        if (!@mkdir($tempFolder)) {
-            $this->markTestSkipped('Can not create temp folder ' . $tempFolder);
-        }
-
-        try {
-            $reflClass = new ReflectionClass(UserWithAutoincrementKey::class);
-            $namespace = 'Generated\Example' . uniqid();
-            $generatedClassName = 'apie_entity_other_' . IdentifierUtils::classNameToUnderscore($reflClass);
-            $generatedEntityClassName = $namespace . '\\' . $generatedClassName;
-            $entityManager = $this->givenAnEntityManagerFromGeneratedClass(
-                $namespace,
-                $tempFolder,
-                'other',
-                $reflClass
-            );
-            $entityManager->getConnection()->exec(file_get_contents(__DIR__ . '/../fixtures/address.sql'));
-            $entity = $entityManager->find($generatedEntityClassName, 42);
-            $this->expectException(ContentsCouldNotBeDeserialized::class);
-            $entity->inject($reflClass->newInstanceWithoutConstructor());
         } finally {
             system('rm -rf ' . escapeshellarg($tempFolder));
         }
@@ -127,16 +98,15 @@ class IntegrationTest extends TestCase
 
     private function givenAnEntityManagerFromGeneratedClass(string $namespace, string $tempFolder, string $boundedContextId, ReflectionClass $reflClass): EntityManagerInterface
     {
-        $generatedClassName = 'apie_entity_' . $boundedContextId . '_' . IdentifierUtils::classNameToUnderscore($reflClass);
+        $generatedClassName = 'apie_resource__' . $boundedContextId . '_' . IdentifierUtils::classNameToUnderscore($reflClass);
         $generatedFilePath = $tempFolder . DIRECTORY_SEPARATOR . $generatedClassName . '.php';
         $generatedEntityClassName = $namespace . '\\' . $generatedClassName;
 
         $ormBuilder = new OrmBuilder(
-            EntityBuilder::create($namespace),
-            new PersistenceLayerFactory(
-                PersistenceMetadataFactory::create()
-            ),
-            BoundedContextFactory::createHashmapWithMultipleContexts()
+            new PersistenceLayerFactory(),
+            BoundedContextFactory::createHashmapWithMultipleContexts(),
+            true,
+            $namespace
         );
 
         $ormBuilder->createOrm($tempFolder);

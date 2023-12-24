@@ -18,20 +18,18 @@ class DoctrineEntityConverterProvider extends ServiceProvider
             \Apie\DoctrineEntityConverter\OrmBuilder::class,
             function ($app) {
                 return new \Apie\DoctrineEntityConverter\OrmBuilder(
-                    $app->make(\Apie\DoctrineEntityConverter\EntityBuilder::class),
-                    $app->make(\Apie\Core\Persistence\PersistenceLayerFactory::class),
+                    $app->make(\Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory::class),
                     $app->make(\Apie\Core\BoundedContext\BoundedContextHashmap::class),
                     $this->parseArgument('%kernel.debug%')
                 );
             }
         );
         $this->app->singleton(
-            \Apie\DoctrineEntityConverter\EntityBuilder::class,
+            \Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory::class,
             function ($app) {
-                return \Apie\DoctrineEntityConverter\EntityBuilder::create(
-                    'Generated'
-                );
+                return new \Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory(
                 
+                );
             }
         );
         

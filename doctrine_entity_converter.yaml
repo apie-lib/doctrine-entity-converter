@@ -1,12 +1,8 @@
 services:
     Apie\DoctrineEntityConverter\OrmBuilder:
         arguments:
-            - '@Apie\DoctrineEntityConverter\EntityBuilder'
-            - '@Apie\Core\Persistence\PersistenceLayerFactory'
+            - '@Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory'
             - '@Apie\Core\BoundedContext\BoundedContextHashmap'
             - '%kernel.debug%'
 
-    Apie\DoctrineEntityConverter\EntityBuilder:
-        factory: ['Apie\DoctrineEntityConverter\EntityBuilder', 'create']
-        arguments:
-            - 'Generated'
+    Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory:

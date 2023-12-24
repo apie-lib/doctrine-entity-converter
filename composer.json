@@ -22,9 +22,9 @@
   "require": {
     "php": ">=8.1",
     "apie/core": "self.version",
+    "apie/storage-metadata-builder": "self.version",
     "doctrine/orm": "^2.16",
-    "nette/php-generator": "^4.0.1",
-    "nikic/php-parser": "^4.14"
+    "nette/php-generator": "^4.0.1"
   },
   "require-dev": {
     "apie/common-value-objects": "self.version",
