@@ -191,8 +191,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             [
                                 'cascade' => ['all'],
                                 'targetEntity' => $attribute->getArguments()[1],
-                                'mappedBy' => 'ref_' . str_replace('-', '_', (string) KebabCaseSlug::fromClass(new ReflectionClass($classType->getComment()))),
-                                //'mappedBy' => $attribute->getArguments()[0],
+                                'mappedBy' => $attribute->getArguments()[0] ?? ('ref_' . $classType->getName()),
                             ]
                         );
                         break;
