@@ -191,6 +191,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'cascade' => ['all'],
                                 'targetEntity' => $attribute->getArguments()[1],
                                 'mappedBy' => $attribute->getArguments()[0] ?? ('ref_' . $classType->getName()),
+                                'fetch' => 'EAGER',
                             ]
                         );
                         break;
@@ -203,6 +204,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             [
                                 'cascade' => ['all'],
                                 'targetEntity' => $targetEntity,
+                                'fetch' => 'EAGER'
                             ]
                         );
                         break;
