@@ -20,12 +20,16 @@ use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\StorageMetadataBuilder\Interfaces\PostRunGeneratedCodeContextInterface;
 use Apie\StorageMetadataBuilder\Mediators\GeneratedCodeContext;
 use Apie\TypeConverter\ReflectionTypeFactory;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Generator;
 use Nette\PhpGenerator\ClassType;
@@ -48,11 +52,19 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
     private function applyId(ClassType $classType): void
     {
         $property = null;
+        $doctrineType = null;
+        $nullable = false;
+        $generatedValue = false;
         if ($classType->hasProperty('id')) {
             $property = $classType->getProperty('id');
         } elseif ($classType->hasProperty('search_id')) {
             $property = $classType->getProperty('search_id')->cloneWithName('id');
             $classType->addMember($property);
+        }
+        if ($property === null) {
+            $property = $classType->addProperty('id')->setType('?int');
+            $generatedValue = true;
+            $doctrineType = 'integer';
         } else {
             // @see ClassTypeFactory
             $originalClass = $classType->getComment();
@@ -63,53 +75,57 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                 );
                 $hashmap = $metadata->getHashmap();
                 if (isset($hashmap['id'])) {
-                    $property = $classType->addProperty('id');
-                    $scalarType = MetadataFactory::getScalarForType($hashmap['id']->getTypehint());
+                    $type = $hashmap['id']->getTypehint();
+                    $nullable = $hashmap['id']->allowsNull();
+                    $class = ConverterUtils::toReflectionClass($type);
+                    if ($class && $class->isSubclassOf(AutoIncrementInteger::class)) {
+                        $generatedValue = true;
+                        $nullable = false;
+                        $property->setInitialized(true);
+                    }
+                    $scalarType = MetadataFactory::getScalarForType($hashmap['id']->getTypehint(), true);
                     $property->setType(
                         $scalarType->value
                     );
-                    $property->addAttribute(Column::class, ['type' => $scalarType->toDoctrineType()]);
+                    $doctrineType = $scalarType->toDoctrineType();
                 }
             }
         }
-        if ($property === null) {
-            $property = $classType->addProperty('id')->setType('?int');
-        }
-        $property->addAttribute(Id::class);
+        
         if (in_array(AutoIncrementTableInterface::class, $classType->getImplements())
             || in_array(MixedStorageInterface::class, $classType->getImplements())) {
-            $property->addAttribute(GeneratedValue::class);
+            $generatedValue = true;
+            $nullable = false;
         }
-        // @see ClassTypeFactory
-        $originalClass = $classType->getComment();
-        if ($originalClass && class_exists($originalClass)) {
-            $metadata = MetadataFactory::getResultMetadata(
-                new ReflectionClass($originalClass),
-                new ApieContext()
-            );
-            $hashmap = $metadata->getHashmap();
-            if (isset($hashmap['id'])) {
-                $type = $hashmap['id']->getTypehint();
-                $class = ConverterUtils::toReflectionClass($type);
-                if ($class && $class->isSubclassOf(AutoIncrementInteger::class)) {
-                    $property->addAttribute(GeneratedValue::class);
-                    $property->setInitialized(true);
-                }
-            }
-        }
-        if ($property->getType() === '?int') {
-            $property->addAttribute(Column::class, ['type' => 'integer']);
-        }
+
+        $hasIdAttribute = false;
         $hasColumnAttribute = false;
         foreach ($property->getAttributes() as $attribute) {
-            if ($attribute->getName() === Column::class) {
+            if (in_array($attribute->getName(), [Column::class, ManyToOne::class, OneToMany::class, ManyToMany::class])) {
                 $hasColumnAttribute = true;
                 break;
             }
+            if ($attribute->getName() === GeneratedValue::class) {
+                $generatedValue = false;
+            }
+            if ($attribute->getName() === Id::class) {
+                $hasIdAttribute = true;
+            }
+        }
+        if (!$hasIdAttribute) {
+            $property->addAttribute(Id::class);
         }
         if (!$hasColumnAttribute) {
-            $scalarType = MetadataFactory::getScalarForType(ReflectionTypeFactory::createReflectionType($property->getType()));
-            $property->addAttribute(Column::class, ['type' => $scalarType->toDoctrineType()]);
+            if ($doctrineType === null) {
+                $doctrineType = MetadataFactory::getScalarForType(
+                    ReflectionTypeFactory::createReflectionType($property->getType()),
+                    true
+                )->toDoctrineType();
+            }
+            $property->addAttribute(Column::class, ['type' => $doctrineType, 'nullable' => $nullable]);
+        }
+        if ($generatedValue) {
+            $property->addAttribute(GeneratedValue::class);
         }
     }
 
@@ -159,10 +175,25 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'inversedBy' => $attribute->getArguments()[0],
                             ]
                         );
+                        $property->addAttribute(
+                            JoinColumn::class,
+                            [
+                                'nullable' => true,
+                            ]
+                        );
                         break;
                     case OneToManyAttribute::class:
                         $added = true;
-                        // TODO
+                        $property->setType(Collection::class);
+                        $property->addAttribute(
+                            OneToMany::class,
+                            [
+                                'cascade' => ['all'],
+                                'targetEntity' => $attribute->getArguments()[1],
+                                'mappedBy' => 'ref_' . $classType->getComment(),
+                                //'mappedBy' => $attribute->getArguments()[0],
+                            ]
+                        );
                         break;
                     case OneToOneAttribute::class:
                         $added = true;
@@ -186,29 +217,27 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case ParentAttribute::class:
                         $added = true;
-                        // TODO
+                        $property->addAttribute(
+                            ManyToOne::class,
+                            ['targetEntity' => $property->getType()]
+                        );
                         break;
                 }
             }
             if (!$added) {
-                switch ($property->getType()) {
-                    case '?string':
-                        $property->addAttribute(Column::class, ['type' => 'string', 'nullable' => true]);
-                        break;
+                $type = $property->getType();
+                switch ((string) $type) {
                     case 'string':
-                        $property->addAttribute(Column::class, ['type' => 'string']);
+                        $property->addAttribute(Column::class, ['type' => 'string', 'nullable' => $property->isNullable()]);
                         break;
                     case 'float':
-                        $property->addAttribute(Column::class, ['type' => 'float']);
-                        break;
-                    case '?float':
-                        $property->addAttribute(Column::class, ['type' => 'float', 'nullable' => true]);
+                        $property->addAttribute(Column::class, ['type' => 'float', 'nullable' => $property->isNullable()]);
                         break;
                     case 'int':
-                        $property->addAttribute(Column::class, ['type' => 'integer']);
+                        $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
                         break;
                     case '?int':
-                        $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => true]);
+                        $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
                         break;
                 }
                 
