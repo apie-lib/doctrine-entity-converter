@@ -3,7 +3,6 @@ namespace Apie\DoctrineEntityConverter\CodeGenerators;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Identifiers\AutoIncrementInteger;
-use Apie\Core\Identifiers\KebabCaseSlug;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
@@ -209,7 +208,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case GetSearchIndexAttribute::class:
                         $added = true;
-                        // TODO
+                        $property->addAttribute(Column::class, ['type' => 'json']);
                         break;
                     case OrderAttribute::class:
                         $added = true;
