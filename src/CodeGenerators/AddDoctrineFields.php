@@ -3,6 +3,7 @@ namespace Apie\DoctrineEntityConverter\CodeGenerators;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Identifiers\AutoIncrementInteger;
+use Apie\Core\Identifiers\KebabCaseSlug;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
@@ -190,7 +191,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             [
                                 'cascade' => ['all'],
                                 'targetEntity' => $attribute->getArguments()[1],
-                                'mappedBy' => 'ref_' . $classType->getComment(),
+                                'mappedBy' => 'ref_' . str_replace('-', '_', (string) KebabCaseSlug::fromClass(new ReflectionClass($classType->getComment()))),
                                 //'mappedBy' => $attribute->getArguments()[0],
                             ]
                         );
