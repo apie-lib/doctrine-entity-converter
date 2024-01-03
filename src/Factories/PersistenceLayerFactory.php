@@ -11,6 +11,7 @@ use Apie\StorageMetadataBuilder\CodeGenerators\AddIndexesCodeGenerator;
 use Apie\StorageMetadataBuilder\CodeGenerators\ItemListCodeGenerator;
 use Apie\StorageMetadataBuilder\CodeGenerators\RootObjectCodeGenerator;
 use Apie\StorageMetadataBuilder\CodeGenerators\SimplePropertiesCodeGenerator;
+use Apie\StorageMetadataBuilder\CodeGenerators\SubObjectCodeGenerator;
 use Apie\StorageMetadataBuilder\Mediators\GeneratedCode;
 use Apie\StorageMetadataBuilder\StorageMetadataBuilder;
 
@@ -28,6 +29,7 @@ final class PersistenceLayerFactory
             ),
             new ChainedGeneratedCodeContext(
                 new AddAutoIdGenerator(),
+                new SubObjectCodeGenerator(),
                 new ItemListCodeGenerator(),
                 $simple,
                 new RootObjectCodeGenerator()
