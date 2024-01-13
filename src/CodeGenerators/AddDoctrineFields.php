@@ -186,8 +186,9 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $added = true;
                         $property->setType(Collection::class);
                         $targetEntity = $attribute->getArguments()[1];
-                        $mappedByProperty = $attribute->getArguments()[0] ?? ('ref_' . $classType->getName());
-                        $mappedByProperty ??= $generatedCodeContext->findParentProperty($targetEntity);
+                        $mappedByProperty = $generatedCodeContext->findParentProperty($targetEntity);
+                        $mappedByProperty ??= $attribute->getArguments()[0];
+                        $mappedByProperty ??= 'ref_' . $classType->getName();
 
                         $property->addAttribute(
                             OneToMany::class,
