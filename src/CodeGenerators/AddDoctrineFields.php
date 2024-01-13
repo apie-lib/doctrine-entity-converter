@@ -223,9 +223,10 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case ParentAttribute::class:
                         $added = true;
+                        $inversedBy = $generatedCodeContext->findInverseProperty($property->getType());
                         $property->addAttribute(
                             ManyToOne::class,
-                            ['targetEntity' => $property->getType()]
+                            ['targetEntity' => $property->getType(), 'inversedBy' => $inversedBy]
                         );
                         break;
                 }
