@@ -45,7 +45,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
     public function postRun(GeneratedCodeContext $generatedCodeContext): void
     {
         foreach ($generatedCodeContext->generatedCode->generatedCodeHashmap as $code) {
-            $this->patch($code);
+            $this->patch($generatedCodeContext, $code);
         }
     }
 
@@ -146,7 +146,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
         }
     }
 
-    private function patch(ClassType $classType): void
+    private function patch(GeneratedCodeContext $generatedCodeContext, ClassType $classType): void
     {
         $classType->addAttribute(Entity::class);
         $classType->addAttribute(HasLifecycleCallbacks::class);
@@ -185,12 +185,16 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                     case OneToManyAttribute::class:
                         $added = true;
                         $property->setType(Collection::class);
+                        $targetEntity = $attribute->getArguments()[1];
+                        $mappedByProperty = $attribute->getArguments()[0] ?? ('ref_' . $classType->getName());
+                        $mappedByProperty ??= $generatedCodeContext->findParentProperty($targetEntity);
+
                         $property->addAttribute(
                             OneToMany::class,
                             [
                                 'cascade' => ['all'],
-                                'targetEntity' => $attribute->getArguments()[1],
-                                'mappedBy' => $attribute->getArguments()[0] ?? ('ref_' . $classType->getName()),
+                                'targetEntity' => $targetEntity,
+                                'mappedBy' => $mappedByProperty,
                                 'fetch' => 'EAGER',
                             ]
                         );
