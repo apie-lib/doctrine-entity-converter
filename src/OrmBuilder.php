@@ -55,7 +55,7 @@ final class OrmBuilder
             }
         }
         $type->add($classType);
-        return '<?php' . PHP_EOL . $type;
+        return '<?php' . PHP_EOL . '// @codingStandardsIgnoreStart' . PHP_EOL . $type;
     }
 
     public function createOrm(string $path): bool
