@@ -215,7 +215,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case GetSearchIndexAttribute::class:
                         $added = true;
-                        $property->addAttribute(Column::class, ['type' => 'json']);
+                        $property->addAttribute(Column::class, ['type' => 'json', 'options' => ["default" => '[]']]);
                         break;
                     case OrderAttribute::class:
                         $added = true;
