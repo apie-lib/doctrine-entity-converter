@@ -32,6 +32,7 @@ use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\Mapping\OrderBy;
 use Generator;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PromotedParameter;
@@ -190,7 +191,10 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $mappedByProperty = $generatedCodeContext->findParentProperty($targetEntity);
                         $mappedByProperty ??= $attribute->getArguments()[0];
                         $mappedByProperty ??= 'ref_' . $classType->getName();
-
+                        $indexByProperty = $generatedCodeContext->findIndexProperty($targetEntity);
+                        if ($indexByProperty) {
+                            $property->addAttribute(OrderBy::class, [[$indexByProperty => 'ASC']]);
+                        }
                         $property->addAttribute(
                             OneToMany::class,
                             [
@@ -198,6 +202,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'targetEntity' => $targetEntity,
                                 'mappedBy' => $mappedByProperty,
                                 'fetch' => 'EAGER',
+                                'indexBy' => $indexByProperty,
                             ]
                         );
                         break;
