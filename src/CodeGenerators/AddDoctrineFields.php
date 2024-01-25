@@ -26,6 +26,7 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Index;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -215,7 +216,19 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case GetSearchIndexAttribute::class:
                         $added = true;
-                        $property->addAttribute(Column::class, ['type' => 'json', 'options' => ["default" => '[]']]);
+                        $classType->addAttribute(
+                            Index::class,
+                            [
+                                'columns' => [$property->getName()],
+                            ]
+                        );
+                        $property->addAttribute(
+                            Column::class,
+                            [
+                                'type' => 'json',
+                                'options' => ["default" => '[]']
+                            ]
+                        );
                         break;
                     case OrderAttribute::class:
                         $added = true;
