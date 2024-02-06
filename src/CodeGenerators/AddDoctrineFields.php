@@ -38,6 +38,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PromotedParameter;
 use Nette\PhpGenerator\Property;
 use ReflectionClass;
+use ReflectionNamedType;
 
 /**
  * Adds created_at and updated_at and Doctrine attributes
@@ -237,7 +238,11 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case OrderAttribute::class:
                         $added = true;
-                        $property->addAttribute(Column::class, ['type' => 'integer']);
+                        $type = 'string';
+                        if ($property->getType() instanceof ReflectionNamedType && $property->getName() === 'int') {
+                            $type = 'integer';
+                        }
+                        $property->addAttribute(Column::class, ['type' => $type]);
                         break;
                     case ParentAttribute::class:
                         $added = true;
