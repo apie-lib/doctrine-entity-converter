@@ -239,7 +239,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                     case OrderAttribute::class:
                         $added = true;
                         $type = 'string';
-                        if ($property->getType() instanceof ReflectionNamedType && $property->getName() === 'int') {
+                        if ($property->getType() === 'int') {
                             $type = 'integer';
                         }
                         $property->addAttribute(Column::class, ['type' => $type]);
