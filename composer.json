@@ -28,7 +28,6 @@
   },
   "require-dev": {
     "apie/common-value-objects": "self.version",
-    "apie/composite-value-objects": "self.version",
     "apie/text-value-objects": "self.version",
     "apie/fixtures": "self.version",
     "doctrine/doctrine-bundle": "*",
