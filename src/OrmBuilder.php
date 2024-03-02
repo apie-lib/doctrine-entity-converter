@@ -8,6 +8,7 @@ use Nette\PhpGenerator\PhpNamespace;
 use PhpParser\Error;
 use PhpParser\ParserFactory;
 use RuntimeException;
+use Symfony\Component\Finder\Finder;
 
 final class OrmBuilder
 {
@@ -65,6 +66,13 @@ final class OrmBuilder
             @mkdir($path, recursive: true);
         }
         $modified = false;
+        foreach (Finder::create()->files()->in($path)->name('*.php') as $file) {
+            $filePath = basename($file->getRelativePathname(), '.php');
+            if (!isset($tableList->generatedCodeHashmap[$filePath])) {
+                @unlink($file->getRealPath());
+                $modified = true;
+            }
+        }
         foreach ($tableList->generatedCodeHashmap as $filePath => $code) {
             $fileName = $path . DIRECTORY_SEPARATOR . $filePath . '.php';
             $phpCode = $this->wrapNamespace($code);

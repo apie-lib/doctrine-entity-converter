@@ -24,7 +24,8 @@
     "apie/core": "self.version",
     "apie/storage-metadata-builder": "self.version",
     "doctrine/orm": "^2.16",
-    "nette/php-generator": "^4.0.1"
+    "nette/php-generator": "^4.0.1",
+    "symfony/finder": "^6.0"
   },
   "require-dev": {
     "apie/common-value-objects": "self.version",
