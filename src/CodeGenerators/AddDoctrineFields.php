@@ -6,6 +6,7 @@ use Apie\Core\Identifiers\AutoIncrementInteger;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
+use Apie\DoctrineEntityDatalayer\Types\JsonArrayType;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
@@ -231,10 +232,11 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $property->addAttribute(
                             Column::class,
                             [
-                                'type' => 'json',
-                                'options' => ["default" => '[]']
+                                'type' => JsonArrayType::NAME,
+                                'options' => ['default' => '[]']
                             ]
                         );
+                        $type = $property->getType();
                         break;
                     case OrderAttribute::class:
                         $added = true;
