@@ -95,7 +95,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                 }
             }
         }
-        
+
         if (in_array(AutoIncrementTableInterface::class, $classType->getImplements())
             || in_array(MixedStorageInterface::class, $classType->getImplements())) {
             $generatedValue = true;
@@ -260,7 +260,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                 $type = $property->getType();
                 switch ((string) $type) {
                     case 'string':
-                        $property->addAttribute(Column::class, ['type' => 'string', 'nullable' => $property->isNullable()]);
+                        $property->addAttribute(Column::class, ['type' => 'text', 'nullable' => $property->isNullable()]);
                         break;
                     case 'float':
                         $property->addAttribute(Column::class, ['type' => 'float', 'nullable' => $property->isNullable()]);
@@ -272,7 +272,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
                         break;
                 }
-                
+
             }
         }
 
