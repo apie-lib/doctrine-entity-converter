@@ -2,7 +2,9 @@
 namespace Apie\DoctrineEntityConverter;
 
 use Apie\Core\BoundedContext\BoundedContextHashmap;
+use Apie\Core\Entities\EntityInterface;
 use Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory;
+use Doctrine\Common\Collections\Collection;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 use PhpParser\Error;
@@ -44,7 +46,9 @@ final class OrmBuilder
         $type = new PhpNamespace($this->namespace);
         $type->addUse('Apie\\StorageMetadata\\Attributes', 'Attr');
         $type->addUse('Apie\\StorageMetadata\\Interfaces', 'StorageMetadata');
+        $type->addUse(EntityInterface::class);
         $type->addUse('Doctrine\\ORM\\Mapping', 'DoctrineMapping');
+        $type->addUse(Collection::class);
         foreach ($classType->getProperties() as $property) {
             if ($property->getType() && str_starts_with($property->getType(), 'apie_')) {
                 $property->setType($this->namespace . '\\' . $property->getType());

@@ -3,9 +3,11 @@ namespace Apie\DoctrineEntityConverter\CodeGenerators;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Identifiers\AutoIncrementInteger;
+use Apie\Core\Identifiers\KebabCaseSlug;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
+use Apie\DoctrineEntityConverter\Entities\SearchIndex;
 use Apie\DoctrineEntityDatalayer\Types\JsonArrayType;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
@@ -35,10 +37,12 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\OrderBy;
 use Generator;
+use Nette\PhpGenerator\Attribute;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PromotedParameter;
 use Nette\PhpGenerator\Property;
 use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * Adds created_at and updated_at and Doctrine attributes
@@ -222,19 +226,30 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case GetSearchIndexAttribute::class:
                         $added = true;
-                        $classType->addAttribute(
-                            Index::class,
-                            [
-                                'columns' => [$property->getName()],
-                            ]
+                        $property->setType(Collection::class);
+                        $searchTableName = strpos($classType->getName(), 'apie_resource__') === 0
+                            ? preg_replace('/^apie_resource__/', 'apie_index__', $classType->getName())
+                            : 'apie_index__' . $classType->getName();
+                        $searchTableName .= '_' . $property->getName();
+                        $searchTable = SearchIndex::createFor(
+                            $searchTableName,
+                            $classType->getName(),
+                            $property->getName(),
                         );
+                        $generatedCodeContext->generatedCode->generatedCodeHashmap[$searchTableName] = $searchTable;
                         $property->addAttribute(
-                            Column::class,
+                            OneToMany::class,
                             [
-                                'type' => JsonArrayType::NAME,
-                                'options' => ['default' => '[]']
+                                'cascade' => ['all'],
+                                'targetEntity' => $searchTableName,
+                                'mappedBy' => 'parent',
+                                'fetch' => 'EAGER',
                             ]
                         );
+                        $args = $attribute->getArguments();
+                        $args['arrayValueType'] = $searchTableName;
+                        // there is no good method in nette/php-generator
+                        (new ReflectionProperty(Attribute::class, 'args'))->setValue($attribute, $args);
                         $type = $property->getType();
                         break;
                     case OrderAttribute::class:
