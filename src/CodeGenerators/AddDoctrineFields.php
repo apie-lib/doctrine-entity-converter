@@ -3,12 +3,10 @@ namespace Apie\DoctrineEntityConverter\CodeGenerators;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Identifiers\AutoIncrementInteger;
-use Apie\Core\Identifiers\KebabCaseSlug;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
 use Apie\DoctrineEntityConverter\Entities\SearchIndex;
-use Apie\DoctrineEntityDatalayer\Types\JsonArrayType;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
@@ -29,7 +27,6 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\Index;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -166,7 +163,11 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                     case GetMethodAttribute::class:
                     case PropertyAttribute::class:
                         $added = true;
-                        $property->addAttribute(Column::class, ['nullable' => true]);
+                        if (in_array($property->getType(), ['DateTimeImmutable', '?DateTimeImmutable'])) {
+                            $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'datetimetz_immutable']);
+                        } else {
+                            $property->addAttribute(Column::class, ['nullable' => true]);
+                        }
                         break;
                     case DiscriminatorMappingAttribute::class:
                         $added = true;
