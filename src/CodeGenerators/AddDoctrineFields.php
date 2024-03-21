@@ -209,6 +209,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'mappedBy' => $mappedByProperty,
                                 'fetch' => 'EAGER',
                                 'indexBy' => $indexByProperty,
+                                'orphanRemoval' => true,
                             ]
                         );
                         break;
@@ -221,7 +222,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             [
                                 'cascade' => ['all'],
                                 'targetEntity' => $targetEntity,
-                                'fetch' => 'EAGER'
+                                'fetch' => 'EAGER',
                             ]
                         );
                         break;
@@ -244,7 +245,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'cascade' => ['all'],
                                 'targetEntity' => $searchTableName,
                                 'mappedBy' => 'parent',
-                                'fetch' => 'EAGER',
+                                'orphanRemoval' => true,
                             ]
                         );
                         $args = $attribute->getArguments();
