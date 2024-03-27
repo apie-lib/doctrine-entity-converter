@@ -9,13 +9,13 @@ use Doctrine\ORM\Mapping\PreUpdate;
 
 trait HasGeneralDoctrineFields
 {
-    #[Column(type: 'string', length: 20, options: ['default' => 'unknown'])]
+    #[Column(name: 'internal_apie_version', type: 'string', length: 20, options: ['default' => 'unknown'])]
     public string $internalApieVersion = ApieLib::VERSION;
     
-    #[Column(type: 'datetime_immutable')]
+    #[Column(name: 'created_at', type: 'datetime_immutable')]
     public DateTimeImmutable $createdAt;
 
-    #[Column(type: 'datetime_immutable')]
+    #[Column(name: 'updated_at', type: 'datetime_immutable')]
     public DateTimeImmutable $updatedAt;
 
     #[PrePersist]

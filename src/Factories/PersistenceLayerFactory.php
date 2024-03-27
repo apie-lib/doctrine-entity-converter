@@ -6,6 +6,7 @@ use Apie\DoctrineEntityConverter\CodeGenerators\AddDoctrineFields;
 use Apie\StorageMetadataBuilder\ChainedBootGeneratedCode;
 use Apie\StorageMetadataBuilder\ChainedGeneratedCodeContext;
 use Apie\StorageMetadataBuilder\ChainedPostGeneratedCodeContext;
+use Apie\StorageMetadataBuilder\CodeGenerators\AccessControlListGenerator;
 use Apie\StorageMetadataBuilder\CodeGenerators\AddAutoIdGenerator;
 use Apie\StorageMetadataBuilder\CodeGenerators\AddIndexesCodeGenerator;
 use Apie\StorageMetadataBuilder\CodeGenerators\ItemListCodeGenerator;
@@ -21,11 +22,13 @@ final class PersistenceLayerFactory
     {
         $simple = new SimplePropertiesCodeGenerator();
         $indexer = new AddIndexesCodeGenerator();
+        $acl = new AccessControlListGenerator();
         $testItem = new StorageMetadataBuilder(
             $boundedContextHashmap,
             new ChainedBootGeneratedCode(
                 $simple,
-                $indexer
+                $indexer,
+                $acl,
             ),
             new ChainedGeneratedCodeContext(
                 new AddAutoIdGenerator(),
@@ -36,6 +39,7 @@ final class PersistenceLayerFactory
             ),
             new ChainedPostGeneratedCodeContext(
                 $indexer,
+                $acl,
                 new AddDoctrineFields(),
             )
         );

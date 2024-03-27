@@ -7,6 +7,7 @@ use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
 use Apie\DoctrineEntityConverter\Entities\SearchIndex;
+use Apie\StorageMetadata\Attributes\AclLinkAttribute;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
@@ -191,12 +192,18 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         );
                         break;
                     case OneToManyAttribute::class:
+                    case AclLinkAttribute::class;
                         $added = true;
                         $property->setType(Collection::class);
-                        $targetEntity = $attribute->getArguments()[1];
-                        $mappedByProperty = $generatedCodeContext->findParentProperty($targetEntity);
-                        $mappedByProperty ??= $attribute->getArguments()[0];
-                        $mappedByProperty ??= 'ref_' . $classType->getName();
+                        if ($attribute->getName() === OneToManyAttribute::class) {
+                            $targetEntity = $attribute->getArguments()[1];
+                            $mappedByProperty = $generatedCodeContext->findParentProperty($targetEntity);
+                            $mappedByProperty ??= $attribute->getArguments()[0];
+                            $mappedByProperty ??= 'ref_' . $classType->getName();
+                        } else {
+                            $targetEntity = $attribute->getArguments()[0];
+                            $mappedByProperty = 'ref_' . $classType->getName();
+                        }
                         $indexByProperty = $generatedCodeContext->findIndexProperty($targetEntity);
                         if ($indexByProperty) {
                             $property->addAttribute(OrderBy::class, [[$indexByProperty => 'ASC']]);
