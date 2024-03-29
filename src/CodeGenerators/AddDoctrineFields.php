@@ -192,7 +192,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         );
                         break;
                     case OneToManyAttribute::class:
-                    case AclLinkAttribute::class;
+                    case AclLinkAttribute::class:
                         $added = true;
                         $property->setType(Collection::class);
                         if ($attribute->getName() === OneToManyAttribute::class) {
