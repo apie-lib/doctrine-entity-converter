@@ -167,7 +167,12 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         if (in_array($property->getType(), ['DateTimeImmutable', '?DateTimeImmutable'])) {
                             $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'datetimetz_immutable']);
                         } else {
-                            $property->addAttribute(Column::class, ['nullable' => true]);
+                            $arguments = $attribute->getArguments();
+                            if ($arguments[2] ?? false) {
+                                $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'text', 'length' => 65535]);
+                            } else {
+                                $property->addAttribute(Column::class, ['nullable' => true]);
+                            }
                         }
                         break;
                     case DiscriminatorMappingAttribute::class:
