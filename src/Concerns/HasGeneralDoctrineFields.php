@@ -9,8 +9,11 @@ use Doctrine\ORM\Mapping\PreUpdate;
 
 trait HasGeneralDoctrineFields
 {
-    #[Column(name: 'internal_apie_version', type: 'string', length: 20, options: ['default' => 'unknown'])]
+    #[Column(name: 'created_in_internal_apie_version', type: 'string', length: 20, options: ['default' => 'unknown'])]
     public string $internalApieVersion = ApieLib::VERSION;
+
+    #[Column(name: 'updated_in_internal_apie_version', type: 'string', length: 20, options: ['default' => 'unknown'])]
+    public string $lastUpdateApieVersion = ApieLib::VERSION;
     
     #[Column(name: 'created_at', type: 'datetime_immutable')]
     public DateTimeImmutable $createdAt;
@@ -29,5 +32,6 @@ trait HasGeneralDoctrineFields
     public function onPreUpdate()
     {
         $this->updatedAt = new DateTimeImmutable("now");
+        $this->lastUpdateApieVersion = ApieLib::VERSION;
     }
 }
