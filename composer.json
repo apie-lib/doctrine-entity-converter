@@ -29,9 +29,11 @@
   },
   "require-dev": {
     "apie/common-value-objects": "self.version",
+    "apie/service-provider-generator": "0.11.2",
     "apie/text-value-objects": "self.version",
     "apie/fixtures": "self.version",
     "doctrine/doctrine-bundle": "*",
+    "illuminate/support": "*",
     "phpunit/phpunit": "^9.5",
     "phpspec/prophecy-phpunit": "^2.0",
     "symfony/cache": "^6.0"
