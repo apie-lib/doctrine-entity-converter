@@ -3,6 +3,7 @@ namespace Apie\Tests\DoctrineEntityConverter;
 
 use Apie\Core\Entities\EntityInterface;
 use Apie\Core\IdentifierUtils;
+use Apie\Core\ValueObjects\DatabaseText;
 use Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory;
 use Apie\DoctrineEntityConverter\OrmBuilder;
 use Apie\Fixtures\BoundedContextFactory;
@@ -10,7 +11,6 @@ use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey;
 use Apie\Fixtures\ValueObjects\AddressWithZipcodeCheck;
 use Apie\StorageMetadata\DomainToStorageConverter;
-use Apie\TextValueObjects\DatabaseText;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
