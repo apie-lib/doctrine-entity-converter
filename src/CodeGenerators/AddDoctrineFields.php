@@ -300,7 +300,6 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
                         break;
                 }
-
             }
         }
 

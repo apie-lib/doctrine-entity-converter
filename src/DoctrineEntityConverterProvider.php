@@ -32,6 +32,5 @@ class DoctrineEntityConverterProvider extends ServiceProvider
                 );
             }
         );
-        
     }
 }
