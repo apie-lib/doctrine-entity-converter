@@ -2,6 +2,7 @@
 namespace Apie\Tests\DoctrineEntityConverter;
 
 use Apie\Core\Entities\EntityInterface;
+use Apie\Core\FileStorage\FileStorageFactory;
 use Apie\Core\IdentifierUtils;
 use Apie\Core\ValueObjects\DatabaseText;
 use Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory;
@@ -80,7 +81,7 @@ class IntegrationTest extends TestCase
                 $boundedContextId,
                 $reflClass
             );
-            $converter = DomainToStorageConverter::create();
+            $converter = DomainToStorageConverter::create(FileStorageFactory::create());
 
             $entity = $converter->createStorageObject(
                 $domainObject,
