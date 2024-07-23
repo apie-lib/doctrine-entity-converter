@@ -294,10 +294,12 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $property->addAttribute(Column::class, ['type' => 'float', 'nullable' => $property->isNullable()]);
                         break;
                     case 'int':
-                        $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
-                        break;
                     case '?int':
                         $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
+                        break;
+                    case 'array':
+                    case '?array':
+                        $property->addAttribute(Column::class, ['type' => 'json', 'nullable' => $property->isNullable()]);
                         break;
                 }
             }
