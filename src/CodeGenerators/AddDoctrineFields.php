@@ -169,7 +169,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         } else {
                             $arguments = $attribute->getArguments();
                             if ($arguments[2] ?? false) {
-                                $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'text', 'length' => 65535]);
+                                $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'text']);
                             } else {
                                 $property->addAttribute(Column::class, ['nullable' => true]);
                             }
