@@ -51,11 +51,17 @@ class LimitFieldLength implements PostRunGeneratedCodeContextInterface
         }
         $alreadyDefined = [];
         foreach ($this->iterateProperties($classType) as $property) {
-            $alreadyDefined[$property->getName()] = true;
-            if (strlen($property->getName()) < 57) {
+            foreach ($property->getAttributes() as $attribute) {
+                if (in_array($attribute->getName(), [Column::class])) {
+                    $this->fillInMissingStringLength($attribute);
+                }
+            }
+            $propertyName = $property->getName();
+            if (strlen($property->getName()) < 57 && !isset($alreadyDefined[$propertyName])) {
+                $alreadyDefined[$propertyName] = true;
                 continue;
             }
-            $suggestedName = substr($property->getName(), 0, 57);
+            $suggestedName = substr($propertyName, 0, 57);
             for ($i = 0; !empty($alreadyDefined[$suggestedName]); $i++) {
                 $suggestedName = sprintf("%s%03u", substr($property->getName(), 0, 57), $i);
             }
@@ -65,6 +71,18 @@ class LimitFieldLength implements PostRunGeneratedCodeContextInterface
                 }
             }
         }
+    }
+
+    private function fillInMissingStringLength(Attribute $attribute): void
+    {
+        $arguments = $attribute->getArguments();
+        if (($arguments['type'] ?? 'string')=== 'string' || !isset($arguments['type'])) {
+            if (!isset($arguments['length'])) {
+                $arguments['length'] = 255;
+            }
+        }
+        $refl = new ReflectionProperty(Attribute::class, 'args');
+        $refl->setValue($attribute, $arguments);
     }
 
     private function setNameArgument(Attribute $attribute, string $suggestedName): void

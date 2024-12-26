@@ -268,7 +268,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         break;
                     case OrderAttribute::class:
                         $added = true;
-                        $type = 'string';
+                        $type = 'text';
                         if ($property->getType() === 'int') {
                             $type = 'integer';
                         }
