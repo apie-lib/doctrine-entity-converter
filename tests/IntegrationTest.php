@@ -12,10 +12,12 @@ use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey;
 use Apie\Fixtures\ValueObjects\AddressWithZipcodeCheck;
 use Apie\StorageMetadata\DomainToStorageConverter;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -26,7 +28,7 @@ class IntegrationTest extends TestCase
         $isDevMode = true;
         $proxyDir = null;
         $cache = null;
-        $config = Setup::createAttributeMetadataConfiguration(
+        $config = ORMSetup::createAttributeMetadataConfiguration(
             [$mockPath],
             $isDevMode,
             $proxyDir,
@@ -37,8 +39,8 @@ class IntegrationTest extends TestCase
             'memory' => is_null($path),
             'path'   => $path
         ];
-
-        return EntityManager::create($conn, $config);
+        $connection = DriverManager::getConnection($conn, $config);
+        return new EntityManager($connection, $config);
     }
 
     protected function runMigrations(EntityManagerInterface $entityManager)
@@ -47,18 +49,16 @@ class IntegrationTest extends TestCase
         $classes = $entityManager->getMetadataFactory()->getAllMetadata();
         $sql = $tool->getDropDatabaseSQL($classes);
         foreach ($sql as $statement) {
-            $entityManager->getConnection()->exec($statement);
+            $entityManager->getConnection()->executeStatement($statement);
         }
         $sql = $tool->getUpdateSchemaSql($classes);
         foreach ($sql as $statement) {
-            $entityManager->getConnection()->exec($statement);
+            $entityManager->getConnection()->executeStatement($statement);
         }
     }
 
-    /**
-     * @requires extension sqlite3
-     * @dataProvider entityProvider
-     */
+    #[RequiresPhpExtension('sqlite3')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('entityProvider')]
     public function testPersistenceAndRetrieval(EntityInterface $domainObject, string $boundedContextId, ?callable $testBefore = null, ?callable $testAfter = null)
     {
         $testBefore ??= function () {
@@ -121,7 +121,7 @@ class IntegrationTest extends TestCase
         return $entityManager;
     }
 
-    public function entityProvider()
+    public static function entityProvider()
     {
         $address = new AddressWithZipcodeCheck(
             new DatabaseText('Street'),
@@ -133,15 +133,15 @@ class IntegrationTest extends TestCase
             new UserWithAutoincrementKey($address),
             'other',
             function (UserWithAutoincrementKey $domainObject) {
-                $this->assertNull($domainObject->getId()->toNative(), 'Object id is not updated after flush(), before inject()');
+                TestCase::assertNull($domainObject->getId()->toNative(), 'Object id is not updated after flush(), before inject()');
             },
             function (UserWithAutoincrementKey $domainObject) {
-                $this->assertNotNull($domainObject->getId()->toNative(), 'Object id is updated after inject()');
-                $this->assertNull($domainObject->getPassword());
-                $this->assertEquals('Street', $domainObject->getAddress()->getStreet()->toNative());
-                $this->assertEquals('42-A', $domainObject->getAddress()->getStreetNumber()->toNative());
-                $this->assertEquals('1234 AA', $domainObject->getAddress()->getZipcode()->toNative());
-                $this->assertEquals('Amsterdam', $domainObject->getAddress()->getCity()->toNative());
+                TestCase::assertNotNull($domainObject->getId()->toNative(), 'Object id is updated after inject()');
+                TestCase::assertNull($domainObject->getPassword());
+                TestCase::assertEquals('Street', $domainObject->getAddress()->getStreet()->toNative());
+                TestCase::assertEquals('42-A', $domainObject->getAddress()->getStreetNumber()->toNative());
+                TestCase::assertEquals('1234 AA', $domainObject->getAddress()->getZipcode()->toNative());
+                TestCase::assertEquals('Amsterdam', $domainObject->getAddress()->getCity()->toNative());
             }
         ];
         $domainObject = new UserWithAddress($address);
@@ -151,7 +151,7 @@ class IntegrationTest extends TestCase
             'default',
             null,
             function (UserWithAddress $persistedObject) use ($id) {
-                $this->assertEquals($id, $persistedObject->getId()->toNative());
+                TestCase::assertEquals($id, $persistedObject->getId()->toNative());
             }
         ];
     }

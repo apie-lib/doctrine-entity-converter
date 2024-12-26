@@ -22,16 +22,16 @@ trait HasGeneralDoctrineFields
     public DateTimeImmutable $updatedAt;
 
     #[PrePersist]
-    public function onPrePersist()
+    public function onPrePersist(): void
     {
-        $this->createdAt = new DateTimeImmutable("now");
-        $this->updatedAt = new DateTimeImmutable("now");
+        $this->createdAt = ApieLib::getPsrClock()->now();
+        $this->updatedAt = $this->createdAt;
     }
 
     #[PreUpdate]
-    public function onPreUpdate()
+    public function onPreUpdate(): void
     {
-        $this->updatedAt = new DateTimeImmutable("now");
+        $this->updatedAt = ApieLib::getPsrClock()->now();
         $this->lastUpdateApieVersion = ApieLib::VERSION;
     }
 }

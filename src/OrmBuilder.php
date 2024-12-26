@@ -9,6 +9,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 use PhpParser\Error;
 use PhpParser\ParserFactory;
+use PhpParser\PhpVersion;
 use RuntimeException;
 use Symfony\Component\Finder\Finder;
 
@@ -24,7 +25,7 @@ final class OrmBuilder
 
     private function validate(string $phpCode, string $tableName): void
     {
-        $parser = (new ParserFactory)->create(ParserFactory::ONLY_PHP7);
+        $parser = (new ParserFactory)->createForVersion(PhpVersion::fromString('8.3'));
         try {
             $parser->parse($phpCode);
         } catch (Error $error) {
