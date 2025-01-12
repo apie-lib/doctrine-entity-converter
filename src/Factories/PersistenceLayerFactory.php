@@ -20,10 +20,10 @@ use Apie\StorageMetadataBuilder\StorageMetadataBuilder;
 
 final class PersistenceLayerFactory
 {
-    public function create(BoundedContextHashmap $boundedContextHashmap): GeneratedCode
+    public function create(BoundedContextHashmap $boundedContextHashmap, bool $singleIndexTable = true): GeneratedCode
     {
         $simple = new SimplePropertiesCodeGenerator();
-        $indexer = new AddIndexesCodeGenerator();
+        $indexer = new AddIndexesCodeGenerator($singleIndexTable);
         $acl = new AccessControlListGenerator();
         $testItem = new StorageMetadataBuilder(
             $boundedContextHashmap,
