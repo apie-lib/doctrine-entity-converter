@@ -2,10 +2,12 @@
 namespace Apie\DoctrineEntityConverter\CodeGenerators;
 
 use Apie\Core\Context\ApieContext;
+use Apie\Core\Entities\RequiresRecalculatingInterface;
 use Apie\Core\Identifiers\AutoIncrementInteger;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
+use Apie\DoctrineEntityConverter\Concerns\RequiresDomainUpdate;
 use Apie\DoctrineEntityConverter\Entities\SearchIndex;
 use Apie\StorageMetadata\Attributes\AclLinkAttribute;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
@@ -156,6 +158,14 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
         $classType->addAttribute(Entity::class);
         $classType->addAttribute(HasLifecycleCallbacks::class);
         $classType->addTrait('\\' . HasGeneralDoctrineFields::class);
+
+        // @see ClassTypeFactory
+        $originalClass = $classType->getComment();
+        if ($originalClass && class_exists($originalClass)) {
+            if (is_a($originalClass, RequiresRecalculatingInterface::class, true)) {
+                $classType->addTrait('\\' . RequiresDomainUpdate::class);
+            }
+        }
 
         foreach ($this->iterateProperties($classType) as $property) {
             $added = false;
