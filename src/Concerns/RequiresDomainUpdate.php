@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping\Column;
 
 /**
  * @see RequiresRecalculatingInterface
- * @phpstan-ignore trait.unused 
+ * @phpstan-ignore trait.unused
  */
 trait RequiresDomainUpdate
 {
