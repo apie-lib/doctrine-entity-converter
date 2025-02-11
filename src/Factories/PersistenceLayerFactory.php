@@ -3,6 +3,7 @@ namespace Apie\DoctrineEntityConverter\Factories;
 
 use Apie\Core\BoundedContext\BoundedContextHashmap;
 use Apie\DoctrineEntityConverter\CodeGenerators\AddDoctrineFields;
+use Apie\DoctrineEntityConverter\CodeGenerators\AddSecondLevelCache;
 use Apie\DoctrineEntityConverter\CodeGenerators\LimitFieldLength;
 use Apie\StorageMetadataBuilder\ChainedBootGeneratedCode;
 use Apie\StorageMetadataBuilder\ChainedGeneratedCodeContext;
@@ -45,6 +46,7 @@ final class PersistenceLayerFactory
                 $acl,
                 new AddDoctrineFields(),
                 new LimitFieldLength(),
+                new AddSecondLevelCache(),
             )
         );
         return $testItem->generateCode();
