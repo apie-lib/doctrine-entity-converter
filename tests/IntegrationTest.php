@@ -10,6 +10,7 @@ use Apie\DoctrineEntityConverter\OrmBuilder;
 use Apie\Fixtures\BoundedContextFactory;
 use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Entities\UserWithAutoincrementKey;
+use Apie\Fixtures\Identifiers\UserWithAddressIdentifier;
 use Apie\Fixtures\ValueObjects\AddressWithZipcodeCheck;
 use Apie\StorageMetadata\DomainToStorageConverter;
 use Doctrine\DBAL\DriverManager;
@@ -18,11 +19,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 class IntegrationTest extends TestCase
 {
+    private const ID = '449032c6-0510-4973-9ab7-3b5b45777504';
+
     protected function createEntityManager(string $mockPath, ?string $path = null): EntityManagerInterface
     {
         $isDevMode = true;
@@ -59,8 +63,13 @@ class IntegrationTest extends TestCase
 
     #[RequiresPhpExtension('sqlite3')]
     #[\PHPUnit\Framework\Attributes\DataProvider('entityProvider')]
-    public function testPersistenceAndRetrieval(EntityInterface $domainObject, string $boundedContextId, ?callable $testBefore = null, ?callable $testAfter = null)
-    {
+    #[RunInSeparateProcess]
+    public function testPersistenceAndRetrieval(
+        EntityInterface $domainObject,
+        string $boundedContextId,
+        ?callable $testBefore = null,
+        ?callable $testAfter = null
+    ) {
         $testBefore ??= function () {
         };
         $testAfter ??= function () {
@@ -100,7 +109,7 @@ class IntegrationTest extends TestCase
     private function givenAnEntityManagerFromGeneratedClass(string $namespace, string $tempFolder, string $boundedContextId, ReflectionClass $reflClass): EntityManagerInterface
     {
         $generatedClassName = 'apie_resource__' . $boundedContextId . '_' . IdentifierUtils::classNameToUnderscore($reflClass);
-        $generatedFilePath = $tempFolder . DIRECTORY_SEPARATOR . $generatedClassName . '.php';
+        $generatedFilePath = $tempFolder . DIRECTORY_SEPARATOR . 'current' . DIRECTORY_SEPARATOR . $generatedClassName . '.php';
         $generatedEntityClassName = $namespace . '\\' . $generatedClassName;
 
         $ormBuilder = new OrmBuilder(
@@ -121,6 +130,26 @@ class IntegrationTest extends TestCase
         return $entityManager;
     }
 
+    private static function assertDomainObjectIdIsNull(UserWithAutoincrementKey $domainObject)
+    {
+        TestCase::assertNull($domainObject->getId()->toNative(), 'Object id is not updated after flush(), before inject()');
+    }
+
+    private static function assertDomainIsProperlySaved(UserWithAutoincrementKey $domainObject)
+    {
+        TestCase::assertNotNull($domainObject->getId()->toNative(), 'Object id is updated after inject()');
+        TestCase::assertNull($domainObject->getPassword());
+        TestCase::assertEquals('Street', $domainObject->getAddress()->getStreet()->toNative());
+        TestCase::assertEquals('42-A', $domainObject->getAddress()->getStreetNumber()->toNative());
+        TestCase::assertEquals('1234 AA', $domainObject->getAddress()->getZipcode()->toNative());
+        TestCase::assertEquals('Amsterdam', $domainObject->getAddress()->getCity()->toNative());
+    }
+
+    private static function assertDomainObjectWIthUuidHasSameId(UserWithAddress $persistedObject)
+    {
+        TestCase::assertEquals(self::ID, $persistedObject->getId()->toNative());
+    }
+
     public static function entityProvider()
     {
         $address = new AddressWithZipcodeCheck(
@@ -132,27 +161,15 @@ class IntegrationTest extends TestCase
         yield 'Entity with auto increment id' => [
             new UserWithAutoincrementKey($address),
             'other',
-            function (UserWithAutoincrementKey $domainObject) {
-                TestCase::assertNull($domainObject->getId()->toNative(), 'Object id is not updated after flush(), before inject()');
-            },
-            function (UserWithAutoincrementKey $domainObject) {
-                TestCase::assertNotNull($domainObject->getId()->toNative(), 'Object id is updated after inject()');
-                TestCase::assertNull($domainObject->getPassword());
-                TestCase::assertEquals('Street', $domainObject->getAddress()->getStreet()->toNative());
-                TestCase::assertEquals('42-A', $domainObject->getAddress()->getStreetNumber()->toNative());
-                TestCase::assertEquals('1234 AA', $domainObject->getAddress()->getZipcode()->toNative());
-                TestCase::assertEquals('Amsterdam', $domainObject->getAddress()->getCity()->toNative());
-            }
+            [__CLASS__, 'assertDomainObjectIdIsNull'],
+            [__CLASS__, 'assertDomainIsProperlySaved']
         ];
-        $domainObject = new UserWithAddress($address);
-        $id = $domainObject->getId()->toNative();
+        $domainObject = new UserWithAddress($address, UserWithAddressIdentifier::fromNative(self::ID));
         yield 'Entity with predefined uuid' => [
             $domainObject,
             'default',
             null,
-            function (UserWithAddress $persistedObject) use ($id) {
-                TestCase::assertEquals($id, $persistedObject->getId()->toNative());
-            }
+            [__CLASS__, 'assertDomainObjectWIthUuidHasSameId']
         ];
     }
 }
