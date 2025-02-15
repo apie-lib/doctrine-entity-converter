@@ -245,6 +245,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'cascade' => ['all'],
                                 'targetEntity' => $targetEntity,
                                 'fetch' => 'EAGER',
+                                'orphanRemoval' => true,
                             ]
                         );
                         break;
