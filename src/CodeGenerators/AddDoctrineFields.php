@@ -203,6 +203,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             JoinColumn::class,
                             [
                                 'nullable' => true,
+                                'onDelete' => 'CASCADE',
                             ]
                         );
                         break;
@@ -234,6 +235,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                                 'orphanRemoval' => true,
                             ]
                         );
+
                         break;
                     case OneToOneAttribute::class:
                         $added = true;
@@ -291,6 +293,12 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $property->addAttribute(
                             ManyToOne::class,
                             ['targetEntity' => $property->getType(), 'inversedBy' => $inversedBy]
+                        );
+                        $property->addAttribute(
+                            JoinColumn::class,
+                            [
+                                'onDelete' => 'CASCADE',
+                            ]
                         );
                         break;
                 }

@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Index;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use JsonSerializable;
@@ -51,6 +52,12 @@ abstract class SearchIndex implements JsonSerializable, Stringable
             [
                 'targetEntity' => $originalTableName,
                 'inversedBy' => $fieldName,
+            ]
+        );
+        $parentProperty->addAttribute(
+            JoinColumn::class,
+            [
+                'onDelete' => 'CASCADE'
             ]
         );
         $table->setExtends(SearchIndex::class);
