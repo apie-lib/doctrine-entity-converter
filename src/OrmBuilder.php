@@ -148,7 +148,7 @@ final class OrmBuilder
             @mkdir($buildPath, recursive: true);
         }
         $modified = $this->createCurrentPathCode($buildPath, $tableList->generatedCodeHashmap);
-        $modified = $this->createReferencedCode($currentPath, $tableList->generatedCodeHashmap);
+        $modified = $this->createReferencedCode($currentPath, $tableList->generatedCodeHashmap) || $modified;
 
         return $modified;
     }
