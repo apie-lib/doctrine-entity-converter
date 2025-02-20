@@ -149,20 +149,22 @@ final class OrmBuilder
         }
         $modified = $this->createCurrentPathCode($buildPath, $tableList->generatedCodeHashmap);
         $modified = $this->createReferencedCode($currentPath, $tableList->generatedCodeHashmap) || $modified;
-
+        if ($modified) {
+            file_put_contents($path . '/apie.meta', serialize($this->lastGeneratedCode));
+        }
         return $modified;
     }
 
     public function getLastGeneratedCode(string $path): GeneratedCodeTimestamp
     {
-        if (isset($this->lastGeneratedCode)) {
-            file_put_contents($path . '/apie.meta', serialize($this->lastGeneratedCode));
-        } else {
+        if (!isset($this->lastGeneratedCode)) {
+            $this->lastGeneratedCode = new GeneratedCodeTimestamp(new GeneratedCodeHashmap());
             $lastContents = @file_get_contents($path . '/apie.meta');
             if ($lastContents) {
-                $this->lastGeneratedCode = unserialize($lastContents);
-            } else {
-                $this->lastGeneratedCode = new GeneratedCodeTimestamp(new GeneratedCodeHashmap());
+                $lastGeneratedCode = @unserialize($lastContents);
+                if ($lastGeneratedCode instanceof GeneratedCodeTimestamp) {
+                    $this->lastGeneratedCode = $lastGeneratedCode;
+                }                
             }
         }
         return $this->lastGeneratedCode;
