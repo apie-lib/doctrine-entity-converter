@@ -164,7 +164,7 @@ final class OrmBuilder
                 $lastGeneratedCode = @unserialize($lastContents);
                 if ($lastGeneratedCode instanceof GeneratedCodeTimestamp) {
                     $this->lastGeneratedCode = $lastGeneratedCode;
-                }                
+                }
             }
         }
         return $this->lastGeneratedCode;
