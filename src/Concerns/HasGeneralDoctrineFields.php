@@ -15,23 +15,25 @@ trait HasGeneralDoctrineFields
     #[Column(name: 'updated_in_internal_apie_version', type: 'string', length: 20, options: ['default' => 'unknown'])]
     public string $lastUpdateApieVersion = ApieLib::VERSION;
     
-    #[Column(name: 'created_at', type: 'datetime_immutable')]
-    public DateTimeImmutable $createdAt;
+    #[Column(name: 'created_at', type: 'decimal', precision: 21, scale: 3)]
+    public string $createdAt;
 
-    #[Column(name: 'updated_at', type: 'datetime_immutable')]
-    public DateTimeImmutable $updatedAt;
+    #[Column(name: 'updated_at', type: 'decimal', precision: 21, scale: 3)]
+    public string $updatedAt;
 
     #[PrePersist]
     public function onPrePersist(): void
     {
-        $this->createdAt = ApieLib::getPsrClock()->now();
+        // time is stored as decimal because not all datetime formats support microseconds on db platforms.
+        $this->createdAt = ApieLib::getPsrClock()->now()->format('U.v');
         $this->updatedAt = $this->createdAt;
     }
 
     #[PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = ApieLib::getPsrClock()->now();
+        // time is stored as decimal because not all datetime formats support microseconds on db platforms.
+        $this->updatedAt = ApieLib::getPsrClock()->now()->format('U.v');
         $this->lastUpdateApieVersion = ApieLib::VERSION;
     }
 }
