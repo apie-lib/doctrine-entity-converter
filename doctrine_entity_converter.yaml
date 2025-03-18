@@ -1,0 +1,8 @@
+services:
+    Apie\DoctrineEntityConverter\OrmBuilder:
+        arguments:
+            - '@Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory'
+            - '@Apie\Core\BoundedContext\BoundedContextHashmap'
+            - '%kernel.debug%'
+
+    Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory:

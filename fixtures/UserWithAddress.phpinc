@@ -2,44 +2,123 @@
 namespace Test\RenderOnly;
 
 use Apie\Core\Dto\DtoInterface;
-use Apie\DoctrineEntityConverter\Embeddables\MixedType;
+use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
+use Apie\DoctrineEntityConverter\Concerns\IsLinkedToEntity;
+use Apie\DoctrineEntityConverter\Interfaces\GeneratedDoctrineEntityInterface;
 use Apie\DoctrineEntityConverter\Utils\Utils;
 use Apie\Fixtures\Entities\UserWithAddress as OriginalDomainObject;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 
 #[ORM\Entity]
-class UserWithAddress implements DtoInterface
+#[HasLifecycleCallbacks]
+class apie_entity_example_user_with_address implements DtoInterface, GeneratedDoctrineEntityInterface
 {
-    #[ORM\Column(type: 'string', length: 36)]
+    use HasGeneralDoctrineFields;
+    use IsLinkedToEntity;
+
+    #[ORM\Column(type: 'text', nullable: false)]
     #[ORM\Id]
     public string $id;
 
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $password;
+    #[ORM\OneToOne(targetEntity: 'apie_other_table', cascade: ['all'])]
+    public apie_other_table $apie_address;
 
-    #[ORM\Embedded(class: 'Apie\DoctrineEntityConverter\Embeddables\MixedType')]
-    public MixedType $address;
+    #[ORM\Column(type: 'text', nullable: false)]
+    public string $apie_id;
 
-    private function __construct()
+    /**
+     * Return original domain object class.
+     *
+     * @return class-string<OriginalDomainObject>
+     */
+    public static function getOriginalClassName(): ?string
     {
+        return OriginalDomainObject::class;
     }
 
+    /**
+     * Creates a doctrine entity from a domain class.
+     */
     public static function createFrom(OriginalDomainObject $input): self
     {
         $instance = new self();
 
-        $tmp = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
-        $tmp = $tmp ? $tmp->toNative(): null;
-        $instance->id = $tmp === null ? null : \Apie\Core\ValueObjects\Utils::toString($tmp);
-        $instance->password = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'password')));
-        $instance->address = MixedType::createFrom(Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address')));
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
+        $instance->id = $input->getId()->toNative();
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address'));
+        $converted = apie_other_table::createFrom($raw);
+        $instance->apie_address = $converted;
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\PropertySimpleValueObject
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $converted = $raw->toNative();
+        $instance->apie_id = $converted;
         return $instance;
     }
 
+    /**
+     * Updates a doctrine entity from the domain class.
+     */
+    public function updateFrom(OriginalDomainObject $input): self
+    {
+        $instance = $this;
+
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
+        $instance->id = $input->getId()->toNative();
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'address'));
+        $converted = apie_other_table::createFrom($raw);
+        $instance->apie_address = $converted;
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\PropertySimpleValueObject
+        $raw = Utils::getProperty($input, new \ReflectionProperty(OriginalDomainObject::class, 'id'));
+        $converted = $raw->toNative();
+        $instance->apie_id = $converted;
+        return $instance;
+    }
+
+    /**
+     * Overwrite the properties of the domain object with what is found in the entity.
+     */
     public function inject(OriginalDomainObject $instance): void
     {
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($this->id));
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'password'), $this->password->toDomainObject());
-        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $this->address->toDomainObject());
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\IdPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\EntityGetIdValue
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\FieldReferencePropertyGenerator
+        // field class Apie\Core\Persistence\Fields\FieldReference
+        $tmp = $this->apie_address;
+        $converted = $tmp; Utils::injectEmbeddedObject($this, new \ReflectionProperty(__CLASS__, 'apie_address'), $instance, new \ReflectionProperty(OriginalDomainObject::class, 'address')); $converted = $this->apie_address;
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'address'), $converted);
+
+        // generated from Apie\DoctrineEntityConverter\PropertyGenerators\ValueObjectPropertyGenerator
+        // field class Apie\Core\Persistence\Fields\PropertySimpleValueObject
+        $tmp = $this->apie_id;
+        $converted = \Apie\Fixtures\Identifiers\UserWithAddressIdentifier::fromNative($tmp);
+        Utils::setProperty($instance, new \ReflectionProperty(OriginalDomainObject::class, 'id'), $converted);
+    }
+
+    /**
+     * Returns the mapping between the original object and the doctrine entity.
+     *
+     * @return array<string, string>
+     */
+    public static function getMapping(): array
+    {
+        return array (
+          'id' => 'apie_id',
+        );
     }
 }
