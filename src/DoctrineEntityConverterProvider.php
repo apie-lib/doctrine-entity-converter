@@ -20,7 +20,7 @@ class DoctrineEntityConverterProvider extends ServiceProvider
                 return new \Apie\DoctrineEntityConverter\OrmBuilder(
                     $app->make(\Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory::class),
                     $app->make(\Apie\Core\BoundedContext\BoundedContextHashmap::class),
-                    $this->parseArgument('%kernel.debug%')
+                    $this->parseArgument('%kernel.debug%', \Apie\DoctrineEntityConverter\OrmBuilder::class, 2)
                 );
             }
         );
