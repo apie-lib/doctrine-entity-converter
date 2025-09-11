@@ -19,6 +19,13 @@ abstract class SearchIndex implements JsonSerializable, Stringable
     #[Column()]
     public string $value;
 
+    /**
+     * @final
+     */
+    public function __construct()
+    {
+    }
+
     public function __toString(): string
     {
         return $this->value;
