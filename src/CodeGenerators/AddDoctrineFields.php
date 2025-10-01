@@ -10,6 +10,7 @@ use Apie\DoctrineEntityConverter\Concerns\HasGeneralDoctrineFields;
 use Apie\DoctrineEntityConverter\Concerns\RequiresDomainUpdate;
 use Apie\DoctrineEntityConverter\Entities\SearchIndex;
 use Apie\StorageMetadata\Attributes\AclLinkAttribute;
+use Apie\StorageMetadata\Attributes\DecimalPropertyAttribute;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
@@ -171,6 +172,11 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
             $added = false;
             foreach ($property->getAttributes() as $attribute) {
                 switch ($attribute->getName()) {
+                    case DecimalPropertyAttribute::class:
+                        $added = true;
+                        $arguments = $attribute->getArguments();
+                        $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'decimal', 'precision' => $arguments[2] ?? 2]);
+                        break;
                     case GetMethodAttribute::class:
                     case PropertyAttribute::class:
                         $added = true;
