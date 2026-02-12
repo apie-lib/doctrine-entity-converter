@@ -20,8 +20,7 @@
     }
   },
   "conflict": {
-    "nette/utils": "3.*",
-    "nette/php-generator": "^4.2.1"
+    "nette/utils": "3.*"
   },
   "require": {
     "php": ">=8.3",

@@ -39,23 +39,25 @@ class LimitFieldLength implements PostRunGeneratedCodeContextInterface
         if (strlen($classType->getName()) > 60) {
             $found = false;
             $suggestedTableName = substr($classType->getName(), 0, 30) . '_' . md5($classType->getName());
-            foreach ($classType->getAttributes() as $attribute) {
+            $this->modifyAttributes(function (Attribute $attribute) use ($suggestedTableName, &$found) {
                 if ($attribute->getName() === Table::class) {
                     $found = true;
-                    $this->setNameArgument($attribute, $suggestedTableName);
+                    return $this->setNameArgument($attribute, $suggestedTableName);
                 }
-            }
+                return $attribute;
+            }, $classType);
             if (!$found) {
                 $classType->addAttribute(Table::class, ['name' => $suggestedTableName]);
             }
         }
         $alreadyDefined = [];
         foreach ($this->iterateProperties($classType) as $property) {
-            foreach ($property->getAttributes() as $attribute) {
+            $this->modifyAttributes(function (Attribute $attribute) {
                 if (in_array($attribute->getName(), [Column::class])) {
-                    $this->fillInMissingStringLength($attribute);
+                    return $this->fillInMissingStringLength($attribute);
                 }
-            }
+                return $attribute;
+            }, $property);
             $propertyName = $property->getName();
             if (strlen($property->getName()) < 57 && !isset($alreadyDefined[$propertyName])) {
                 $alreadyDefined[$propertyName] = true;
@@ -65,15 +67,26 @@ class LimitFieldLength implements PostRunGeneratedCodeContextInterface
             for ($i = 0; !empty($alreadyDefined[$suggestedName]); $i++) {
                 $suggestedName = sprintf("%s%03u", substr($property->getName(), 0, 57), $i);
             }
-            foreach ($property->getAttributes() as $attribute) {
+            $this->modifyAttributes(function (Attribute $attribute) use ($suggestedName) {
                 if (in_array($attribute->getName(), [Column::class, JoinColumn::class])) {
-                    $this->setNameArgument($attribute, $suggestedName);
+                    return $this->setNameArgument($attribute, $suggestedName);
                 }
-            }
+                return $attribute;
+            }, $property);
+            $alreadyDefined[$suggestedName] = true;
         }
     }
 
-    private function fillInMissingStringLength(Attribute $attribute): void
+    private function modifyAttributes(callable $callback, ClassType|PromotedParameter|Property $property): void
+    {
+        $attributes = [];
+        foreach ($property->getAttributes() as $attribute) {
+            $attributes[] = $callback($attribute);
+        }
+        $property->setAttributes($attributes);
+    }
+
+    private function fillInMissingStringLength(Attribute $attribute): Attribute
     {
         $arguments = $attribute->getArguments();
         if (($arguments['type'] ?? 'string')=== 'string' || !isset($arguments['type'])) {
@@ -81,16 +94,14 @@ class LimitFieldLength implements PostRunGeneratedCodeContextInterface
                 $arguments['length'] = 255;
             }
         }
-        $refl = new ReflectionProperty(Attribute::class, 'args');
-        $refl->setValue($attribute, $arguments);
+        return new Attribute($attribute->getName(), $arguments);
     }
 
-    private function setNameArgument(Attribute $attribute, string $suggestedName): void
+    private function setNameArgument(Attribute $attribute, string $suggestedName): Attribute
     {
         $arguments = $attribute->getArguments();
         $arguments['name'] = $suggestedName;
-        $refl = new ReflectionProperty(Attribute::class, 'args');
-        $refl->setValue($attribute, $arguments);
+        return new Attribute($attribute->getName(), $arguments);
     }
 
     /**

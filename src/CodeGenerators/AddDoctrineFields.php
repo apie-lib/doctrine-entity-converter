@@ -170,42 +170,43 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
 
         foreach ($this->iterateProperties($classType) as $property) {
             $added = false;
+            $attributes = [];
             foreach ($property->getAttributes() as $attribute) {
                 switch ($attribute->getName()) {
                     case DecimalPropertyAttribute::class:
                         $added = true;
                         $arguments = $attribute->getArguments();
-                        $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'decimal', 'precision' => $arguments[2] ?? 2]);
+                        $attributes[] = new Attribute(Column::class, ['nullable' => true, 'type' => 'decimal', 'precision' => $arguments[2] ?? 2]);
                         break;
                     case GetMethodAttribute::class:
                     case PropertyAttribute::class:
                         $added = true;
                         if (in_array($property->getType(), ['DateTimeImmutable', '?DateTimeImmutable'])) {
-                            $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'datetimetz_immutable']);
+                            $attributes[] = new Attribute(Column::class, ['nullable' => true, 'type' => 'datetimetz_immutable']);
                         } else {
                             $arguments = $attribute->getArguments();
                             if ($arguments[2] ?? false) {
-                                $property->addAttribute(Column::class, ['nullable' => true, 'type' => 'text']);
+                                $attributes[] = new Attribute(Column::class, ['nullable' => true, 'type' => 'text']);
                             } else {
-                                $property->addAttribute(Column::class, ['nullable' => true]);
+                                $attributes[] = new Attribute(Column::class, ['nullable' => true]);
                             }
                         }
                         break;
                     case DiscriminatorMappingAttribute::class:
                         $added = true;
-                        $property->addAttribute(Column::class, ['type' => 'json']);
+                        $attributes[] = new Attribute(Column::class, ['type' => 'json']);
                         break;
                     case ManyToOneAttribute::class:
                         $added = true;
                         $targetEntity = $property->getType();
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             ManyToOne::class,
                             [
                                 'targetEntity' => $targetEntity,
                                 'inversedBy' => $attribute->getArguments()[0],
                             ]
                         );
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             JoinColumn::class,
                             [
                                 'nullable' => true,
@@ -228,9 +229,9 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         }
                         $indexByProperty = $generatedCodeContext->findIndexProperty($targetEntity);
                         if ($indexByProperty) {
-                            $property->addAttribute(OrderBy::class, [[$indexByProperty => 'ASC']]);
+                            $attributes[] = new Attribute(OrderBy::class, [[$indexByProperty => 'ASC']]);
                         }
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             OneToMany::class,
                             [
                                 'cascade' => ['all'],
@@ -247,7 +248,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         $added = true;
                         $targetEntity = $property->getType();
                         // look for @ParentAttribute for inversedBy?
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             OneToOne::class,
                             [
                                 'cascade' => ['all'],
@@ -270,7 +271,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             $property->getName(),
                         );
                         $generatedCodeContext->generatedCode->generatedCodeHashmap[$searchTableName] = $searchTable;
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             OneToMany::class,
                             [
                                 'cascade' => ['all'],
@@ -281,8 +282,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         );
                         $args = $attribute->getArguments();
                         $args['arrayValueType'] = $searchTableName;
-                        // there is no good method in nette/php-generator
-                        (new ReflectionProperty(Attribute::class, 'args'))->setValue($attribute, $args);
+                        $attribute = new Attribute($attribute->getName(), $args);
                         $type = $property->getType();
                         break;
                     case OrderAttribute::class:
@@ -291,16 +291,16 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         if ($property->getType() === 'int') {
                             $type = 'integer';
                         }
-                        $property->addAttribute(Column::class, ['type' => $type]);
+                        $attributes[] = new Attribute(Column::class, ['type' => $type]);
                         break;
                     case ParentAttribute::class:
                         $added = true;
                         $inversedBy = $generatedCodeContext->findInverseProperty($property->getType(), $classType->getName());
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             ManyToOne::class,
                             ['targetEntity' => $property->getType(), 'inversedBy' => $inversedBy]
                         );
-                        $property->addAttribute(
+                        $attributes[] = new Attribute(
                             JoinColumn::class,
                             [
                                 'onDelete' => 'CASCADE',
@@ -308,26 +308,28 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                         );
                         break;
                 }
+                $attributes[] = $attribute;
             }
             if (!$added) {
                 $type = $property->getType();
                 switch ((string) $type) {
                     case 'string':
-                        $property->addAttribute(Column::class, ['type' => 'text', 'nullable' => $property->isNullable()]);
+                        $attributes[] = new Attribute(Column::class, ['type' => 'text', 'nullable' => $property->isNullable()]);
                         break;
                     case 'float':
-                        $property->addAttribute(Column::class, ['type' => 'float', 'nullable' => $property->isNullable()]);
+                        $attributes[] = new Attribute(Column::class, ['type' => 'float', 'nullable' => $property->isNullable()]);
                         break;
                     case 'int':
                     case '?int':
-                        $property->addAttribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
+                        $attributes[] = new Attribute(Column::class, ['type' => 'integer', 'nullable' => $property->isNullable()]);
                         break;
                     case 'array':
                     case '?array':
-                        $property->addAttribute(Column::class, ['type' => 'json', 'nullable' => $property->isNullable()]);
+                        $attributes[] = new Attribute(Column::class, ['type' => 'json', 'nullable' => $property->isNullable()]);
                         break;
                 }
             }
+            $property->setAttributes($attributes);
         }
 
         $this->applyId($classType);
