@@ -43,7 +43,6 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PromotedParameter;
 use Nette\PhpGenerator\Property;
 use ReflectionClass;
-use ReflectionProperty;
 
 /**
  * Adds created_at and updated_at and Doctrine attributes

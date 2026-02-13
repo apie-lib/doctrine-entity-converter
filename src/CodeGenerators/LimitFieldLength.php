@@ -11,7 +11,6 @@ use Nette\PhpGenerator\Attribute;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PromotedParameter;
 use Nette\PhpGenerator\Property;
-use ReflectionProperty;
 
 /**
  * Find all doctrine column attributes set by AddDoctrineFields and checks if the generated column name
