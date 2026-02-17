@@ -33,7 +33,7 @@
   },
   "require-dev": {
     "apie/common-value-objects": "self.version",
-    "apie/service-provider-generator": "0.12.2",
+    "apie/service-provider-generator": "0.14.0",
     "apie/text-value-objects": "self.version",
     "apie/fixtures": "self.version",
     "beste/clock": "^3.0",

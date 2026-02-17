@@ -14,7 +14,7 @@ class DoctrineEntityConverterProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\DoctrineEntityConverter\OrmBuilder::class,
             function ($app) {
                 return new \Apie\DoctrineEntityConverter\OrmBuilder(
@@ -24,7 +24,7 @@ class DoctrineEntityConverterProvider extends ServiceProvider
                 );
             }
         );
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory::class,
             function ($app) {
                 return new \Apie\DoctrineEntityConverter\Factories\PersistenceLayerFactory(
