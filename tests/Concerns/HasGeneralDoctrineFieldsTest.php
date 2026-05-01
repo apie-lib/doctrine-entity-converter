@@ -16,8 +16,8 @@ class HasGeneralDoctrineFieldsTest extends TestCase
         $time = new DateTimeImmutable('1970-01-01');
         ApieLib::setPsrClock(FrozenClock::at($time));
         $this->onPrePersist();
-        $this->assertEquals($time->format('U.v'), $this->createdAt);
-        $this->assertEquals($time->format('U.v'), $this->updatedAt);
+        $this->assertEquals($time->format('U.u'), $this->createdAt);
+        $this->assertEquals($time->format('U.u'), $this->updatedAt);
     }
 
     public function testOnPreUpdate()
@@ -27,6 +27,6 @@ class HasGeneralDoctrineFieldsTest extends TestCase
         ApieLib::setPsrClock(FrozenClock::at($time));
         $this->onPreUpdate();
         $this->assertEquals('0.000', $this->createdAt);
-        $this->assertEquals($time->format('U.v'), $this->updatedAt);
+        $this->assertEquals($time->format('U.u'), $this->updatedAt);
     }
 }
