@@ -29,7 +29,7 @@ final class OrmBuilder
 
     private function validate(string $phpCode, string $tableName): void
     {
-        $parser = (new ParserFactory)->createForVersion(PhpVersion::fromString('8.3'));
+        $parser = (new ParserFactory)->createForVersion(PhpVersion::fromString('8.4'));
         try {
             $parser->parse($phpCode);
         } catch (Error $error) {
