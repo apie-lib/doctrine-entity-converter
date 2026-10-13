@@ -14,6 +14,7 @@ use Apie\StorageMetadata\Attributes\DecimalPropertyAttribute;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
+use Apie\StorageMetadata\Attributes\ManyToManyAttribute;
 use Apie\StorageMetadata\Attributes\ManyToOneAttribute;
 use Apie\StorageMetadata\Attributes\OneToManyAttribute;
 use Apie\StorageMetadata\Attributes\OneToOneAttribute;
@@ -21,6 +22,7 @@ use Apie\StorageMetadata\Attributes\OrderAttribute;
 use Apie\StorageMetadata\Attributes\ParentAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\AutoIncrementTableInterface;
+use Apie\StorageMetadata\Interfaces\OwnerLocalEntityStorageInterface;
 use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\StorageMetadataBuilder\Interfaces\PostRunGeneratedCodeContextInterface;
 use Apie\StorageMetadataBuilder\Mediators\GeneratedCodeContext;
@@ -100,9 +102,14 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
         }
 
         if (in_array(AutoIncrementTableInterface::class, $classType->getImplements())
+            || in_array(OwnerLocalEntityStorageInterface::class, $classType->getImplements())
             || in_array(MixedStorageInterface::class, $classType->getImplements())) {
             $generatedValue = true;
             $nullable = false;
+            if (in_array(OwnerLocalEntityStorageInterface::class, $classType->getImplements())) {
+                $property->setType('int');
+                $doctrineType = 'integer';
+            }
         }
 
         $hasIdAttribute = false;
@@ -242,6 +249,25 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                             ]
                         );
 
+                        break;
+                    case ManyToManyAttribute::class:
+                        $added = true;
+                        $targetEntity = $attribute->getArguments()[1];
+                        $property->setType(Collection::class);
+                        $indexByProperty = $generatedCodeContext->findIndexProperty($targetEntity);
+                        if ($indexByProperty) {
+                            $attributes[] = new Attribute(OrderBy::class, [[$indexByProperty => 'ASC']]);
+                        }
+                        $attributes[] = new Attribute(
+                            ManyToMany::class,
+                            [
+                                'cascade' => ['all'],
+                                'targetEntity' => $targetEntity,
+                                'fetch' => 'EAGER',
+                                'indexBy' => $indexByProperty,
+                                'orphanRemoval' => true,
+                            ]
+                        );
                         break;
                     case OneToOneAttribute::class:
                         $added = true;
