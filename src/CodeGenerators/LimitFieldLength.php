@@ -115,7 +115,7 @@ class LimitFieldLength implements PostRunGeneratedCodeContextInterface
                 if (!isset($arguments[$key]) && strlen($columnName) > 57) {
                     $shortName = substr($columnName, 0, 30) . '_' . md5($columnName);
                     $arguments[$key] = [new Literal(
-                        'new \\' . JoinColumn::class . '(name: ?, referencedColumnName: \'id\')',
+                        'new \\' . JoinColumn::class . '(name: ?, referencedColumnName: \'id\', onDelete: \'CASCADE\')',
                         [$shortName]
                     )];
                 }
