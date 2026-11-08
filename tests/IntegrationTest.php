@@ -41,14 +41,14 @@ class IntegrationTest extends TestCase
     protected function createEntityManager(string $mockPath, ?string $path = null): EntityManagerInterface
     {
         $isDevMode = true;
-        $proxyDir = null;
         $cache = null;
-        $config = ORMSetup::createAttributeMetadataConfiguration(
+        $config = ORMSetup::createAttributeMetadataConfig(
             [$mockPath],
             $isDevMode,
-            $proxyDir,
+            null,
             $cache
         );
+        $config->enableNativeLazyObjects(true);
         $conn = [
             'driver' => 'pdo_sqlite',
             'memory' => is_null($path),

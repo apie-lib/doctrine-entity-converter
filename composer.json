@@ -26,10 +26,10 @@
     "php": ">=8.4",
     "apie/core": "self.version",
     "apie/storage-metadata-builder": "self.version",
-    "doctrine/orm": "^3.6.8",
+    "doctrine/orm": "^3.7.6",
     "nette/php-generator": "^4.2.2",
-    "symfony/finder": "^7.2",
-    "symfony/var-exporter": "^7.2"
+    "symfony/finder": "^7.2|^8.0",
+    "symfony/var-exporter": "^7.2|^8.0"
   },
   "require-dev": {
     "apie/common-value-objects": "self.version",
@@ -41,7 +41,7 @@
     "illuminate/support": "*",
     "phpunit/phpunit": "^11.5.2",
     "phpspec/prophecy-phpunit": "^2.5",
-    "symfony/cache": "^7.4"
+    "symfony/cache": "^7.4|^8.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

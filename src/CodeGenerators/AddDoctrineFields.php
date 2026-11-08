@@ -112,6 +112,15 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
             }
         }
 
+        $property->setAttributes(array_map(
+            static function (Attribute $attribute): Attribute {
+                if ($attribute->getName() !== Column::class) {
+                    return $attribute;
+                }
+                return new Attribute(Column::class, ['nullable' => false] + $attribute->getArguments());
+            },
+            $property->getAttributes()
+        ));
         $hasIdAttribute = false;
         $hasColumnAttribute = false;
         foreach ($property->getAttributes() as $attribute) {
@@ -136,7 +145,7 @@ class AddDoctrineFields implements PostRunGeneratedCodeContextInterface
                     true
                 )->toDoctrineType();
             }
-            $property->addAttribute(Column::class, ['type' => $doctrineType, 'nullable' => $nullable]);
+            $property->addAttribute(Column::class, ['type' => $doctrineType, 'nullable' => false]);
         }
         if ($generatedValue) {
             $property->addAttribute(GeneratedValue::class);
